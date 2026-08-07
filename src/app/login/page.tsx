@@ -5,6 +5,7 @@ import { createClient } from "@/lib/supabase/client";
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import IkatDivider from "@/components/IkatDivider";
+import { developerLogin } from "./actions";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
@@ -40,6 +41,11 @@ export default function LoginPage() {
         redirectTo: `${location.origin}/auth/callback`,
       },
     });
+  };
+
+  const handleDeveloperLogin = async () => {
+    setLoading(true);
+    await developerLogin();
   };
 
   return (
@@ -109,7 +115,7 @@ export default function LoginPage() {
 
             <button
               onClick={handleGoogleLogin}
-              className="w-full border border-ink text-ink text-[11px] tracking-[0.18em] uppercase px-6 py-4 hover:bg-ink hover:text-paper transition-colors font-ui flex items-center justify-center gap-3"
+              className="w-full border border-ink text-ink text-[11px] tracking-[0.18em] uppercase px-6 py-4 hover:bg-ink hover:text-paper transition-colors font-ui flex items-center justify-center gap-3 mb-4"
             >
               <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
                 <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
@@ -119,6 +125,16 @@ export default function LoginPage() {
               </svg>
               Google
             </button>
+            
+            {process.env.NODE_ENV === 'development' && (
+              <button
+                onClick={handleDeveloperLogin}
+                disabled={loading}
+                className="w-full border border-marigold text-marigold text-[11px] tracking-[0.18em] uppercase px-6 py-4 hover:bg-marigold hover:text-paper transition-colors font-ui flex items-center justify-center gap-3 disabled:opacity-50"
+              >
+                Log In As Admin
+              </button>
+            )}
           </div>
         </div>
       </main>
