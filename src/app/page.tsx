@@ -6,35 +6,29 @@ import IkatDivider from "@/components/IkatDivider";
 import Stamp from "@/components/Stamp";
 import StoryCard from "@/components/StoryCard";
 import Newsletter from "@/components/Newsletter";
-import { getAllStories, getPageContent } from "@/lib/data";
-
-/**
- * Homepage — "Card No. 001 · Original Short Fiction"
- *
- * PAGE-LEVEL NUMBERING: "Card No. 001" is a page-level label
- * for the site's front card. This is separate from story-level
- * catalog numbers (014+). See CatalogBadge.tsx for details.
- */
+import { getAllStories } from "@/lib/data";
+import { createClient } from "@/lib/supabase/server";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
   title: "Home",
-  description: "Writer Lokam is a digital library catalog of original short fiction by Abhi. A reading room of stories about love, memory, hope, and longing.",
 };
 
 export default async function Home() {
+  const supabase = await createClient();
   const allStories = await getAllStories();
   const stories = allStories.slice(0, 3); // Get latest 3 stories
-  const homeContent = await getPageContent("home");
-  const bookContent = await getPageContent("book");
+  
+  const { data: hero } = await supabase.from("page_hero").select("*").eq("slug", "home").single();
+  const { data: bookDetails } = await supabase.from("book_details").select("*").eq("id", 1).single();
 
   return (
     <>
-      <Nav cta={{ label: "Read Stories", href: "/stories" }} />
-      <Hero content={homeContent} />
+      <Nav cta={{ label: hero?.cta_primary_label || "Read Stories", href: hero?.cta_primary_href || "/stories" }} />
+      <Hero hero={hero} />
       <Stories stories={stories} />
       <IkatDivider tone="indigo" />
-      <BookShowcase content={bookContent} />
+      <BookShowcase details={bookDetails} />
       <Newsletter />
       <Footer />
     </>
@@ -42,42 +36,61 @@ export default async function Home() {
 }
 
 /* ─── Hero ─── */
-function Hero({ content }: { content: any }) {
-  const title = content?.hero_title || "Writer Lokam";
-  const subtitle = content?.hero_subtitle || "A reading room of original fiction about love, memory, hope, and longing — catalogued, kept, and added to every month.";
+function Hero({ hero }: { hero: any }) {
+  const eyebrow = hero?.eyebrow || "Card No. 001 · Original Short Fiction";
+  const heading = hero?.heading || "Writer Lokam";
+  const subheading = hero?.subheading || "Two threads, dyed separately. Woven into one story.";
+  const body = hero?.body || "A reading room of original fiction about love, memory, hope, and longing — catalogued, kept, and added to every month.";
+  
+  // Handling the specific formatting of "Writer Lokam" if it matches
+  const nameParts = heading.split(" ");
+  const firstPart = nameParts[0];
+  const restPart = nameParts.slice(1).join(" ");
 
   return (
     <section className="max-w-6xl mx-auto px-6 md:px-10 pt-16 md:pt-24 pb-16">
       <div className="grid md:grid-cols-[1fr_auto] gap-10 items-start">
         <div>
           <p className="text-[11px] tracking-[0.24em] uppercase text-indigo mb-6 font-ui">
-            Card No. 001 &middot; Original Short Fiction
+            {eyebrow}
           </p>
           <h1 className="font-display text-ink leading-[0.95] text-[54px] sm:text-[76px] md:text-[92px]">
-            Writer
-            <br />
-            <span className="italic text-marigold">Lokam</span>
+            {restPart ? (
+              <>
+                {firstPart}
+                <br />
+                <span className="italic text-marigold">{restPart}</span>
+              </>
+            ) : (
+              heading
+            )}
           </h1>
-          <p className="mt-8 font-display italic text-xl md:text-2xl text-ink-soft max-w-lg">
-            Two threads, dyed separately. Woven into one story.
-          </p>
-          <p className="mt-4 text-[15px] text-nav-muted max-w-md leading-relaxed font-body">
-            {subtitle}
-          </p>
+          {subheading && (
+            <p className="mt-8 font-display italic text-xl md:text-2xl text-ink-soft max-w-lg">
+              {subheading}
+            </p>
+          )}
+          {body && (
+            <p className="mt-4 text-[15px] text-nav-muted max-w-md leading-relaxed font-body whitespace-pre-wrap">
+              {body}
+            </p>
+          )}
 
           <div className="mt-10 flex flex-wrap gap-4">
             <Link
-              href="/stories"
+              href={hero?.cta_primary_href || "/stories"}
               className="bg-ink text-paper text-[11px] tracking-[0.18em] uppercase px-7 py-4 hover:bg-indigo transition-colors font-ui"
             >
-              Read Stories
+              {hero?.cta_primary_label || "Read Stories"}
             </Link>
-            <Link
-              href="/book"
-              className="border border-ink text-ink text-[11px] tracking-[0.18em] uppercase px-7 py-4 hover:bg-ink hover:text-paper transition-colors font-ui"
-            >
-              Explore the Book
-            </Link>
+            {(hero?.cta_secondary_label || hero?.cta_secondary_href) && (
+              <Link
+                href={hero?.cta_secondary_href || "/book"}
+                className="border border-ink text-ink text-[11px] tracking-[0.18em] uppercase px-7 py-4 hover:bg-ink hover:text-paper transition-colors font-ui"
+              >
+                {hero?.cta_secondary_label || "Explore the Book"}
+              </Link>
+            )}
           </div>
         </div>
 
@@ -126,12 +139,11 @@ function Stories({ stories }: { stories: StoryData[] }) {
 }
 
 /* ─── Book Showcase ─── */
-function BookShowcase({ content }: { content: any }) {
-  const title = content?.title || "Two States, One Heart";
-  const subtitle = content?.subtitle || "Abhi · A Novel";
-  const synopsis = content?.synopsis || "Two families, two languages, two ways of loving — and the couple caught in between, trying to weave something that honors both. A story about the quiet negotiations that hold a family together.";
-  const buyLink = content?.buy_link || "/book";
-  const imageUrl = content?.image_url;
+function BookShowcase({ details }: { details: any }) {
+  const title = details?.title || "Two States, One Heart";
+  const tagline = details?.tagline || "Abhi · A Novel";
+  const synopsis = details?.synopsis || "Two families, two languages, two ways of loving — and the couple caught in between, trying to weave something that honors both. A story about the quiet negotiations that hold a family together.";
+  const imageUrl = details?.cover_image_url;
 
   return (
     <section className="bg-paper-card border-y border-border">
@@ -145,13 +157,13 @@ function BookShowcase({ content }: { content: any }) {
               {title}
             </h2>
             <p className="font-ui text-ink-muted tracking-[0.2em] uppercase text-[12px] mb-8">
-              {subtitle}
+              {tagline}
             </p>
-            <p className="text-[15.5px] leading-relaxed text-ink-soft font-body mb-8">
+            <p className="text-[15.5px] leading-relaxed text-ink-soft font-body mb-8 whitespace-pre-wrap">
               {synopsis}
             </p>
             <Link
-              href={buyLink}
+              href="/book"
               className="inline-flex items-center gap-3 bg-indigo text-paper px-8 py-4 font-ui text-[12px] tracking-widest uppercase hover:bg-ink transition-colors"
             >
               Order Now <ArrowRight size={16} />
@@ -185,7 +197,7 @@ function BookShowcase({ content }: { content: any }) {
                   </p>
                 </div>
                 <p className="relative text-[11px] tracking-[0.2em] uppercase text-paper/70 text-center font-ui">
-                  {subtitle}
+                  {tagline}
                 </p>
               </div>
             )}

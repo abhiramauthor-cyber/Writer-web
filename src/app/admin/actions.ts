@@ -14,99 +14,193 @@ async function requireAdmin() {
   return supabase;
 }
 
-const SocialLinksSchema = z.object({
-  instagram: z.object({ url: z.string().url().optional().or(z.literal("")), handle: z.string().optional().or(z.literal("")) }).optional(),
-  twitter: z.object({ url: z.string().url().optional().or(z.literal("")), handle: z.string().optional().or(z.literal("")) }).optional(),
-  email: z.string().email().optional().or(z.literal("")),
+const SettingsSchema = z.object({
+  site_name: z.string(),
+  tagline: z.string(),
+  footer_blurb: z.string(),
+  meta_description: z.string(),
+  og_image_url: z.string().url().optional().or(z.literal("")),
+  newsletter_heading: z.string(),
+  newsletter_body: z.string(),
+  social_instagram_url: z.string().url().optional().or(z.literal("")),
+  social_twitter_url: z.string().url().optional().or(z.literal("")),
+  social_email: z.string().email().optional().or(z.literal("")),
+  stamp_est_year: z.string(),
 });
 
-// -- Site Settings --
-export async function updateSiteSettings(isMaintenanceMode: boolean) {
+export async function updateSiteSettings(settings: any) {
   const supabase = await requireAdmin();
+  const parsed = SettingsSchema.parse(settings);
   
   const { error } = await supabase
     .from("site_settings")
-    .update({ is_maintenance_mode: isMaintenanceMode, updated_at: new Date().toISOString() })
+    .update(parsed)
     .eq("id", 1);
     
   if (error) throw new Error(error.message);
   revalidatePath("/", "layout");
 }
 
-export async function updateSocialLinks(links: any) {
+const AuthorSchema = z.object({
+  name: z.string(),
+  avatar_url: z.string().url().optional().or(z.literal("")),
+  bio_paragraphs: z.array(z.string()),
+});
+
+export async function updateAuthorProfile(profile: any) {
   const supabase = await requireAdmin();
-  
-  const parsed = SocialLinksSchema.parse(links);
+  const parsed = AuthorSchema.parse(profile);
   
   const { error } = await supabase
-    .from("site_settings")
-    .update({ social_links: parsed as any, updated_at: new Date().toISOString() })
+    .from("author_profile")
+    .update(parsed)
     .eq("id", 1);
     
   if (error) throw new Error(error.message);
   revalidatePath("/", "layout");
 }
 
-// -- Page Content --
-const JourneyItemSchema = z.object({
-  year: z.string(),
-  title: z.string(),
-  body: z.string(),
-  sort_order: z.number(),
-});
-
-const AboutContentSchema = z.object({
-  bio: z.string().optional(),
-  image_url: z.string().url().optional().or(z.literal("")),
-  journey: z.array(JourneyItemSchema).optional(),
-});
-
-const BookContentSchema = z.object({
-  title: z.string(),
-  subtitle: z.string(),
-  synopsis: z.string(),
-  buy_link: z.string(),
-  sample_link: z.string(),
+const PageHeroSchema = z.object({
+  slug: z.string(),
+  eyebrow: z.string().optional(),
+  heading: z.string(),
+  subheading: z.string().optional(),
+  body: z.string().optional(),
+  cta_primary_label: z.string().optional(),
+  cta_primary_href: z.string().optional(),
+  cta_secondary_label: z.string().optional(),
+  cta_secondary_href: z.string().optional(),
   image_url: z.string().url().optional().or(z.literal("")),
 });
 
-export async function updateAboutContent(content: any) {
+export async function updatePageHero(hero: any) {
   const supabase = await requireAdmin();
-  const parsed = AboutContentSchema.parse(content);
+  const parsed = PageHeroSchema.parse(hero);
   
   const { error } = await supabase
-    .from("page_content")
-    .update({ content: parsed as any, updated_at: new Date().toISOString() })
-    .eq("slug", 'about');
+    .from("page_hero")
+    .update(parsed)
+    .eq("slug", parsed.slug);
     
   if (error) throw new Error(error.message);
+  revalidatePath("/");
   revalidatePath("/about");
+  revalidatePath("/book");
+  revalidatePath("/stories");
 }
 
-export async function updateBookContent(content: any) {
+// -- List Actions (Book/About) --
+const BookDetailsSchema = z.object({
+  cover_image_url: z.string().url().optional().or(z.literal("")),
+  title: z.string(),
+  tagline: z.string().optional(),
+  synopsis: z.string().optional(),
+  author_teaser: z.string().optional(),
+  sample_chapter_title: z.string().optional(),
+  sample_chapter_body: z.string().optional(),
+  sample_chapter_meta: z.string().optional(),
+});
+
+export async function updateBookDetails(details: any) {
   const supabase = await requireAdmin();
-  const parsed = BookContentSchema.parse(content);
-  
-  const { error } = await supabase
-    .from("page_content")
-    .update({ content: parsed as any, updated_at: new Date().toISOString() })
-    .eq("slug", 'book');
-    
+  const parsed = BookDetailsSchema.parse(details);
+  const { error } = await supabase.from("book_details").update(parsed).eq("id", 1);
   if (error) throw new Error(error.message);
   revalidatePath("/");
   revalidatePath("/book");
 }
 
-// Keep the old updatePageContent for home (hero) for backward compatibility in this transition, or delete it and make a specific one.
-export async function updateHomeContent(content: any) {
+const ReviewSchema = z.object({
+  id: z.string().optional(),
+  quote: z.string(),
+  name: z.string().optional(),
+  context: z.string().optional(),
+  sort_order: z.number(),
+});
+
+const BuyLinkSchema = z.object({
+  id: z.string().optional(),
+  label: z.string(),
+  url: z.string(),
+  type: z.string().optional(),
+  sort_order: z.number(),
+});
+
+const JourneyItemSchema = z.object({
+  id: z.string().optional(),
+  year: z.string(),
+  title: z.string(),
+  body: z.string().optional(),
+  sort_order: z.number(),
+});
+
+const AchievementSchema = z.object({
+  id: z.string().optional(),
+  text: z.string(),
+  sort_order: z.number(),
+});
+
+// Generic reorder logic
+export async function reorderList(table: string, items: { id: string; sort_order: number }[]) {
   const supabase = await requireAdmin();
-  const { error } = await supabase
-    .from("page_content")
-    .update({ content, updated_at: new Date().toISOString() })
-    .eq("slug", 'home');
-    
-  if (error) throw new Error(error.message);
+  for (const item of items) {
+    await supabase.from(table).update({ sort_order: item.sort_order }).eq("id", item.id);
+  }
   revalidatePath("/");
+  revalidatePath("/book");
+  revalidatePath("/about");
+}
+
+export async function deleteListItem(table: string, id: string) {
+  const supabase = await requireAdmin();
+  await supabase.from(table).delete().eq("id", id);
+  revalidatePath("/");
+  revalidatePath("/book");
+  revalidatePath("/about");
+}
+
+export async function saveReview(review: any) {
+  const supabase = await requireAdmin();
+  const parsed = ReviewSchema.parse(review);
+  if (parsed.id) {
+    await supabase.from("reviews").update(parsed).eq("id", parsed.id);
+  } else {
+    await supabase.from("reviews").insert(parsed);
+  }
+  revalidatePath("/book");
+}
+
+export async function saveBuyLink(buyLink: any) {
+  const supabase = await requireAdmin();
+  const parsed = BuyLinkSchema.parse(buyLink);
+  if (parsed.id) {
+    await supabase.from("buy_links").update(parsed).eq("id", parsed.id);
+  } else {
+    await supabase.from("buy_links").insert(parsed);
+  }
+  revalidatePath("/book");
+}
+
+export async function saveJourneyItem(item: any) {
+  const supabase = await requireAdmin();
+  const parsed = JourneyItemSchema.parse(item);
+  if (parsed.id) {
+    await supabase.from("journey_items").update(parsed).eq("id", parsed.id);
+  } else {
+    await supabase.from("journey_items").insert(parsed);
+  }
+  revalidatePath("/about");
+}
+
+export async function saveAchievement(achievement: any) {
+  const supabase = await requireAdmin();
+  const parsed = AchievementSchema.parse(achievement);
+  if (parsed.id) {
+    await supabase.from("achievements").update(parsed).eq("id", parsed.id);
+  } else {
+    await supabase.from("achievements").insert(parsed);
+  }
+  revalidatePath("/about");
 }
 
 
@@ -135,6 +229,32 @@ export async function deleteComment(id: string) {
   if (error) throw new Error(error.message);
   revalidatePath("/admin/comments");
   revalidatePath("/stories/[slug]", "page");
+}
+
+/* ─── INBOX (Contact Messages & Subscribers) ─── */
+
+export async function markContactMessageRead(id: string) {
+  await requireAdmin();
+  const supabase = await createClient();
+  const { error } = await supabase.from("contact_messages").update({ status: 'read' }).eq("id", id);
+  if (error) throw new Error(error.message);
+  revalidatePath("/admin/inbox");
+}
+
+export async function deleteContactMessage(id: string) {
+  await requireAdmin();
+  const supabase = await createClient();
+  const { error } = await supabase.from("contact_messages").delete().eq("id", id);
+  if (error) throw new Error(error.message);
+  revalidatePath("/admin/inbox");
+}
+
+export async function deleteSubscriber(email: string) {
+  await requireAdmin();
+  const supabase = await createClient();
+  const { error } = await supabase.from("subscribers").delete().eq("email", email);
+  if (error) throw new Error(error.message);
+  revalidatePath("/admin/inbox");
 }
 
 // -- Stories --

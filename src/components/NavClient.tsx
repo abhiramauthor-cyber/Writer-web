@@ -18,6 +18,7 @@ interface NavProps {
   /** "reading" renders the compact story-reading nav */
   variant?: "default" | "reading";
   user?: any;
+  siteName?: string;
 }
 
 const navLinks = [
@@ -32,10 +33,15 @@ export default function NavClient({
   cta = { label: "Read Stories", href: "/stories" },
   variant = "default",
   user,
+  siteName = "Writer Lokam",
 }: NavProps) {
   const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const pathname = usePathname();
+
+  const nameParts = siteName.split(" ");
+  const firstPart = nameParts[0];
+  const restPart = nameParts.slice(1).join(" ");
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 8);
@@ -67,7 +73,7 @@ export default function NavClient({
             All stories
           </Link>
           <Link href="/" className="font-display text-base text-ink">
-            Writer <span className="italic text-indigo">Lokam</span>
+            {firstPart} <span className="italic text-indigo">{restPart}</span>
           </Link>
           {/* Invisible spacer to keep logo centered */}
           <span className="w-[90px]" aria-hidden="true" />
@@ -89,7 +95,7 @@ export default function NavClient({
     >
       <div className="max-w-6xl mx-auto px-6 md:px-10 flex items-center justify-between h-20">
         <Link href="/" className="font-display text-xl text-ink">
-          Writer <span className="italic text-indigo">Lokam</span>
+          {firstPart} <span className="italic text-indigo">{restPart}</span>
         </Link>
 
         <nav className="hidden md:flex items-center gap-10">

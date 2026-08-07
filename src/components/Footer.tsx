@@ -4,19 +4,22 @@ import { createClient } from "@/lib/supabase/server";
 
 export default async function Footer() {
   const supabase = await createClient();
-  const { data: settings } = await supabase.from('site_settings').select('social_links').eq('id', 1).single();
-  const socials = settings?.social_links || {};
+  const { data: settings } = await supabase.from('site_settings').select('*').eq('id', 1).single();
+
+  const siteName = settings?.site_name || "Writer Lokam";
+  const nameParts = siteName.split(" ");
+  const firstPart = nameParts[0];
+  const restPart = nameParts.slice(1).join(" ");
 
   return (
     <footer className="bg-paper">
       <div className="max-w-6xl mx-auto px-6 md:px-10 py-14 flex flex-col md:flex-row justify-between gap-8">
         <div>
           <Link href="/" className="font-display text-lg text-ink mb-2 block">
-            Writer <span className="italic text-indigo">Lokam</span>
+            {firstPart} <span className="italic text-indigo">{restPart}</span>
           </Link>
-          <p className="text-[13px] text-ink-muted max-w-xs leading-relaxed font-body">
-            A catalogued home for stories about love, memory, and everything
-            held between the lines.
+          <p className="text-[13px] text-ink-muted max-w-xs leading-relaxed font-body whitespace-pre-wrap">
+            {settings?.footer_blurb || "A catalogued home for stories about love, memory, and everything held between the lines."}
           </p>
         </div>
         <div className="flex gap-16">
@@ -49,7 +52,7 @@ export default async function Footer() {
             <ul className="space-y-2 text-[13px] text-ink-soft font-ui">
               <li>
                 <a
-                  href={socials?.instagram?.url || "https://instagram.com"}
+                  href={settings?.social_instagram_url || "https://instagram.com"}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="hover:text-ink transition-colors"
@@ -59,7 +62,7 @@ export default async function Footer() {
               </li>
               <li>
                 <a
-                  href={socials?.twitter?.url || "https://twitter.com"}
+                  href={settings?.social_twitter_url || "https://twitter.com"}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="hover:text-ink transition-colors"
@@ -69,7 +72,7 @@ export default async function Footer() {
               </li>
               <li>
                 <a
-                  href={socials?.email ? `mailto:${socials.email}` : "#"}
+                  href={settings?.social_email ? `mailto:${settings.social_email}` : "#"}
                   className="hover:text-ink transition-colors"
                 >
                   Contact
@@ -80,7 +83,7 @@ export default async function Footer() {
         </div>
       </div>
       <div className="max-w-6xl mx-auto px-6 md:px-10 py-6 border-t border-border text-[11px] text-ink-muted font-ui">
-        © 2026 Writer Lokam. All stories written with care.
+        © {new Date().getFullYear()} {siteName}. {settings?.stamp_est_year || "EST. 2024"}
       </div>
     </footer>
   );

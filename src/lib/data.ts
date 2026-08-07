@@ -24,7 +24,7 @@ export async function getAllStories(includeDrafts = false): Promise<StoryData[]>
     excerpt: story.excerpt || "",
     category: story.category,
     thread: "indigo", // Defaulting, you could store this in DB if needed
-    readTime: `${story.read_time_minutes || 5} min read`,
+    readTime: `${story.read_time_minutes || 5} min`,
     publishDate: story.published_at,
   }));
 }
@@ -55,7 +55,7 @@ export async function getStoryBySlug(slug: string, includeDrafts = false) {
       excerpt: data.excerpt || "",
       category: data.category,
       thread: "indigo",
-      readTime: `${data.read_time_minutes || 5} min read`,
+      readTime: `${data.read_time_minutes || 5} min`,
       publishDate: data.published_at,
     } as StoryData,
     content: data.body_mdx,

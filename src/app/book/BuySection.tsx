@@ -4,7 +4,7 @@ import { useState } from "react";
 import { ShoppingBag, Heart, Bookmark } from "lucide-react";
 import Link from "next/link";
 
-export default function BuySection() {
+export default function BuySection({ buyLinks }: { buyLinks: any[] }) {
   const [saved, setSaved] = useState(false);
   const [liked, setLiked] = useState(false);
 
@@ -23,19 +23,25 @@ export default function BuySection() {
         </p>
 
         <div className="flex flex-wrap gap-4 justify-center mb-8">
-          <Link
-            href="#"
-            className="inline-flex items-center gap-2 bg-ink text-paper text-[11px] tracking-[0.18em] uppercase px-7 py-4 hover:bg-indigo transition-colors font-ui"
-          >
-            <ShoppingBag size={14} /> Buy print copy
-          </Link>
-          <Link
-            href="#"
-            className="inline-flex items-center gap-2 border border-ink text-ink text-[11px] tracking-[0.18em] uppercase px-7 py-4 hover:bg-ink hover:text-paper transition-colors font-ui"
-          >
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg>
-            Download ebook
-          </Link>
+          {buyLinks.map((link) => (
+            <Link
+              key={link.id}
+              href={link.url}
+              className={`inline-flex items-center gap-2 text-[11px] tracking-[0.18em] uppercase px-7 py-4 font-ui transition-colors ${
+                link.type === 'primary' 
+                  ? 'bg-ink text-paper hover:bg-indigo' 
+                  : 'border border-ink text-ink hover:bg-ink hover:text-paper'
+              }`}
+            >
+              {link.type === 'primary' ? <ShoppingBag size={14} /> : (
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg>
+              )}
+              {link.label}
+            </Link>
+          ))}
+          {buyLinks.length === 0 && (
+            <p className="text-sm text-ink-muted italic">Links coming soon.</p>
+          )}
         </div>
 
         <div className="flex items-center justify-center gap-6">

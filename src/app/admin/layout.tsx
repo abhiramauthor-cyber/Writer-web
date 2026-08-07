@@ -35,10 +35,22 @@ export default async function AdminLayout({
             <FileText size={16} /> Stories
           </Link>
           <Link href="/admin/pages" className="flex items-center gap-3 px-3 py-3 text-ink hover:bg-indigo hover:text-paper rounded-md transition-colors">
-            <FileText size={16} /> Pages
+            <LayoutDashboard size={16} /> Pages
+          </Link>
+          <Link href="/admin/book" className="flex items-center gap-3 px-3 py-3 text-ink hover:bg-indigo hover:text-paper rounded-md transition-colors">
+            <FileText size={16} /> Book
+          </Link>
+          <Link href="/admin/about" className="flex items-center gap-3 px-3 py-3 text-ink hover:bg-indigo hover:text-paper rounded-md transition-colors">
+            <FileText size={16} /> About
+          </Link>
+          <Link href="/admin/media" className="flex items-center gap-3 px-3 py-3 text-ink hover:bg-indigo hover:text-paper rounded-md transition-colors">
+            <Settings size={16} /> Media
           </Link>
           <Link href="/admin/comments" className="flex items-center gap-3 px-3 py-3 text-ink hover:bg-indigo hover:text-paper rounded-md transition-colors">
             <MessageSquare size={16} /> Comments
+          </Link>
+          <Link href="/admin/inbox" className="flex items-center gap-3 px-3 py-3 text-ink hover:bg-indigo hover:text-paper rounded-md transition-colors">
+            <MessageSquare size={16} /> Inbox
           </Link>
           <Link href="/admin/settings" className="flex items-center gap-3 px-3 py-3 text-ink hover:bg-indigo hover:text-paper rounded-md transition-colors">
             <Settings size={16} /> Settings

@@ -1,248 +1,144 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { updateBookContent, updateAboutContent } from "../actions";
-import { Save, ArrowUp, ArrowDown, Plus, Trash2 } from "lucide-react";
+import { updatePageHero } from "../actions";
+import { Save } from "lucide-react";
+import ImageUpload from "../components/ImageUpload";
 
-export default function PagesClient({
-  aboutContent,
-  bookContent,
-}: {
-  aboutContent: any;
-  bookContent: any;
-}) {
+export default function PagesClient({ heroes }: { heroes: any[] }) {
   const [isPending, startTransition] = useTransition();
+  const [activeTab, setActiveTab] = useState("home");
 
-  // About State
-  const [bio, setBio] = useState(aboutContent?.bio || "");
-  const [aboutImage, setAboutImage] = useState(aboutContent?.image_url || "");
-  const [journey, setJourney] = useState<any[]>(aboutContent?.journey || []);
+  const [forms, setForms] = useState(
+    heroes.reduce((acc, hero) => ({ ...acc, [hero.slug]: hero }), {})
+  );
 
-  // Book State
-  const [bookForm, setBookForm] = useState({
-    title: bookContent?.title || "",
-    subtitle: bookContent?.subtitle || "",
-    synopsis: bookContent?.synopsis || "",
-    buy_link: bookContent?.buy_link || "/book",
-    sample_link: bookContent?.sample_link || "/book#sample",
-    image_url: bookContent?.image_url || "",
-  });
+  const activeForm = forms[activeTab as keyof typeof forms] || {
+    slug: activeTab,
+    eyebrow: "",
+    heading: "",
+    subheading: "",
+    body: "",
+    cta_primary_label: "",
+    cta_primary_href: "",
+    cta_secondary_label: "",
+    cta_secondary_href: "",
+    image_url: "",
+  };
 
-  const handleSaveAbout = () => {
+  const handleUpdate = (field: string, value: string) => {
+    setForms((prev: any) => ({
+      ...prev,
+      [activeTab]: {
+        ...activeForm,
+        [field]: value,
+      },
+    }));
+  };
+
+  const handleSave = () => {
     startTransition(() => {
-      // Re-sort journey by sort_order before saving just in case
-      const sortedJourney = [...journey].sort((a, b) => a.sort_order - b.sort_order);
-      updateAboutContent({ bio, image_url: aboutImage, journey: sortedJourney }).then(() => alert("About page saved!")).catch(e => alert(e.message));
+      updatePageHero(activeForm)
+        .then(() => alert(`${activeTab} page saved!`))
+        .catch((e) => alert("Error saving page: " + e.message));
     });
   };
 
-  const handleSaveBook = () => {
-    startTransition(() => {
-      updateBookContent(bookForm).then(() => alert("Book details saved!")).catch(e => alert(e.message));
-    });
-  };
-
-  // Journey Handlers
-  const addJourneyStep = () => {
-    setJourney([...journey, { year: "", title: "", body: "", sort_order: journey.length + 1 }]);
-  };
-  
-  const removeJourneyStep = (index: number) => {
-    const newJourney = journey.filter((_, i) => i !== index);
-    // Re-index
-    setJourney(newJourney.map((j, i) => ({ ...j, sort_order: i + 1 })));
-  };
-
-  const moveJourneyStep = (index: number, direction: 'up' | 'down') => {
-    if (direction === 'up' && index === 0) return;
-    if (direction === 'down' && index === journey.length - 1) return;
-
-    const newJourney = [...journey];
-    const targetIndex = direction === 'up' ? index - 1 : index + 1;
-    
-    // Swap
-    const temp = newJourney[index];
-    newJourney[index] = newJourney[targetIndex];
-    newJourney[targetIndex] = temp;
-
-    // Re-index
-    setJourney(newJourney.map((j, i) => ({ ...j, sort_order: i + 1 })));
-  };
-
-  const updateJourneyStep = (index: number, field: string, value: string) => {
-    const newJourney = [...journey];
-    newJourney[index] = { ...newJourney[index], [field]: value };
-    setJourney(newJourney);
-  };
+  const tabs = ["home", "book", "about", "stories"];
 
   return (
-    <div className="max-w-4xl">
-      <h1 className="font-display text-4xl text-ink mb-2">Pages & Content</h1>
-      <p className="text-ink-soft font-body mb-10">Edit the text on your static pages.</p>
+    <div className="max-w-4xl space-y-12 pb-20">
+      <div>
+        <h1 className="font-display text-4xl text-ink mb-2">Pages</h1>
+        <p className="text-ink-soft font-body">Manage the Hero sections for each main page.</p>
+      </div>
 
-      {/* Book Details (Single Source of Truth) */}
-      <section className="bg-paper border border-border rounded-md p-6 mb-8">
-        <div className="flex items-center justify-between mb-6">
-          <div>
-            <h2 className="font-display text-2xl text-ink">Book Details</h2>
-            <p className="text-[12px] text-ink-muted font-body mt-1">This updates the Book Showcase on the Homepage AND the main Book page.</p>
-          </div>
+      <div className="flex gap-4 border-b border-border">
+        {tabs.map((tab) => (
           <button
-            onClick={handleSaveBook}
-            disabled={isPending}
-            className="flex items-center gap-2 bg-indigo text-paper px-4 py-2 text-[11px] font-ui tracking-widest uppercase hover:bg-ink transition-colors"
+            key={tab}
+            onClick={() => setActiveTab(tab)}
+            className={`pb-4 px-2 font-ui text-[13px] tracking-widest uppercase transition-colors ${
+              activeTab === tab
+                ? "text-indigo border-b-2 border-indigo"
+                : "text-ink-muted hover:text-ink"
+            }`}
           >
-            <Save size={14} /> Save Book
+            {tab}
+          </button>
+        ))}
+      </div>
+
+      <section className="bg-paper border border-border p-8 rounded-md">
+        <div className="flex items-center justify-between mb-8">
+          <h2 className="font-display text-2xl text-ink capitalize">{activeTab} Page Hero</h2>
+          <button
+            onClick={handleSave}
+            disabled={isPending}
+            className="flex items-center gap-2 bg-indigo text-paper px-4 py-2 text-[11px] font-ui tracking-widest uppercase hover:bg-ink transition-colors disabled:opacity-50"
+          >
+            <Save size={14} /> Save {activeTab}
           </button>
         </div>
-        
-        <div className="space-y-4">
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="block font-ui text-[11px] tracking-widest uppercase text-ink-muted mb-2">Title</label>
-              <input
-                type="text"
-                value={bookForm.title}
-                onChange={(e) => setBookForm({...bookForm, title: e.target.value})}
-                className="w-full bg-paper border border-border p-3 font-display text-lg text-ink focus:outline-none focus:border-indigo"
-              />
-            </div>
-            <div>
-              <label className="block font-ui text-[11px] tracking-widest uppercase text-ink-muted mb-2">Subtitle</label>
-              <input
-                type="text"
-                value={bookForm.subtitle}
-                onChange={(e) => setBookForm({...bookForm, subtitle: e.target.value})}
-                className="w-full bg-paper border border-border p-3 font-body text-sm text-ink focus:outline-none focus:border-indigo"
-              />
-            </div>
-          </div>
-          <div>
-            <label className="block font-ui text-[11px] tracking-widest uppercase text-ink-muted mb-2">Synopsis</label>
-            <textarea
-              value={bookForm.synopsis}
-              onChange={(e) => setBookForm({...bookForm, synopsis: e.target.value})}
-              rows={3}
-              className="w-full bg-paper border border-border p-3 font-body text-sm text-ink focus:outline-none focus:border-indigo"
-            />
-          </div>
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="block font-ui text-[11px] tracking-widest uppercase text-ink-muted mb-2">Buy Link</label>
-              <input
-                type="text"
-                value={bookForm.buy_link}
-                onChange={(e) => setBookForm({...bookForm, buy_link: e.target.value})}
-                className="w-full bg-paper-card border border-border p-3 font-body text-sm text-ink focus:outline-none focus:border-indigo"
-              />
-            </div>
-            <div>
-              <label className="block font-ui text-[11px] tracking-widest uppercase text-ink-muted mb-2">Sample Link</label>
-              <input
-                type="text"
-                value={bookForm.sample_link}
-                onChange={(e) => setBookForm({...bookForm, sample_link: e.target.value})}
-                className="w-full bg-paper-card border border-border p-3 font-body text-sm text-ink focus:outline-none focus:border-indigo"
-              />
-            </div>
-          </div>
-          <div>
-            <label className="block font-ui text-[11px] tracking-widest uppercase text-ink-muted mb-2">Cover Image URL (Optional)</label>
-            <input
-              type="url"
-              placeholder="https://..."
-              value={bookForm.image_url}
-              onChange={(e) => setBookForm({...bookForm, image_url: e.target.value})}
-              className="w-full bg-paper-card border border-border p-3 font-body text-sm text-ink focus:outline-none focus:border-indigo"
-            />
-          </div>
-        </div>
-      </section>
 
-      {/* About Page */}
-      <section className="bg-paper border border-border rounded-md p-6">
-        <div className="flex items-center justify-between mb-6">
-          <h2 className="font-display text-2xl text-ink">About Page</h2>
-          <button
-            onClick={handleSaveAbout}
-            disabled={isPending}
-            className="flex items-center gap-2 bg-indigo text-paper px-4 py-2 text-[11px] font-ui tracking-widest uppercase hover:bg-ink transition-colors"
-          >
-            <Save size={14} /> Save About
-          </button>
-        </div>
-        
         <div className="space-y-8">
-          <div className="grid md:grid-cols-2 gap-8">
+          <div className="grid md:grid-cols-2 gap-6">
             <div>
-              <label className="block font-ui text-[11px] tracking-widest uppercase text-ink-muted mb-2">Biography</label>
-              <textarea
-                value={bio}
-                onChange={(e) => setBio(e.target.value)}
-                rows={6}
-                className="w-full bg-paper border border-border p-3 font-body text-sm text-ink focus:outline-none focus:border-indigo"
-              />
+              <label className="block font-ui text-[11px] tracking-widest uppercase text-ink-muted mb-2">Eyebrow (Small text above)</label>
+              <input type="text" value={activeForm.eyebrow || ""} onChange={(e) => handleUpdate("eyebrow", e.target.value)} className="w-full bg-paper-card border border-border p-3 font-body text-sm text-ink focus:outline-none focus:border-indigo" />
             </div>
             <div>
-              <label className="block font-ui text-[11px] tracking-widest uppercase text-ink-muted mb-2">Profile Image URL (Optional)</label>
-              <input
-                type="url"
-                placeholder="https://..."
-                value={aboutImage}
-                onChange={(e) => setAboutImage(e.target.value)}
-                className="w-full bg-paper border border-border p-3 font-body text-sm text-ink focus:outline-none focus:border-indigo"
-              />
-              {aboutImage && (
-                <div className="mt-4 w-24 h-24 rounded-full overflow-hidden border border-border">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={aboutImage} alt="Preview" className="w-full h-full object-cover" />
-                </div>
-              )}
+              <label className="block font-ui text-[11px] tracking-widest uppercase text-ink-muted mb-2">Heading (Main Title)</label>
+              <input type="text" value={activeForm.heading || ""} onChange={(e) => handleUpdate("heading", e.target.value)} className="w-full bg-paper-card border border-border p-3 font-body text-sm text-ink focus:outline-none focus:border-indigo" />
+            </div>
+            <div>
+              <label className="block font-ui text-[11px] tracking-widest uppercase text-ink-muted mb-2">Subheading</label>
+              <input type="text" value={activeForm.subheading || ""} onChange={(e) => handleUpdate("subheading", e.target.value)} className="w-full bg-paper-card border border-border p-3 font-body text-sm text-ink focus:outline-none focus:border-indigo" />
+            </div>
+            <div className="md:col-span-2">
+              <label className="block font-ui text-[11px] tracking-widest uppercase text-ink-muted mb-2">Body Text</label>
+              <textarea rows={3} value={activeForm.body || ""} onChange={(e) => handleUpdate("body", e.target.value)} className="w-full bg-paper-card border border-border p-3 font-body text-sm text-ink focus:outline-none focus:border-indigo" />
             </div>
           </div>
 
-          <div>
-            <div className="flex items-center justify-between mb-4">
-              <label className="block font-ui text-[11px] tracking-widest uppercase text-ink-muted">The Writing Journey</label>
-              <button onClick={addJourneyStep} className="flex items-center gap-1 text-[11px] font-ui uppercase tracking-widest text-indigo hover:text-ink transition-colors">
-                <Plus size={14} /> Add Step
-              </button>
+          <hr className="border-border" />
+
+          <div className="grid md:grid-cols-2 gap-8">
+            <div className="space-y-6">
+              <h3 className="font-ui text-[13px] tracking-widest uppercase text-ink mb-4">Calls to Action</h3>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block font-ui text-[11px] tracking-widest uppercase text-ink-muted mb-2">Primary Label</label>
+                  <input type="text" value={activeForm.cta_primary_label || ""} onChange={(e) => handleUpdate("cta_primary_label", e.target.value)} className="w-full bg-paper-card border border-border p-3 font-body text-sm text-ink focus:outline-none focus:border-indigo" />
+                </div>
+                <div>
+                  <label className="block font-ui text-[11px] tracking-widest uppercase text-ink-muted mb-2">Primary URL</label>
+                  <input type="text" value={activeForm.cta_primary_href || ""} onChange={(e) => handleUpdate("cta_primary_href", e.target.value)} className="w-full bg-paper-card border border-border p-3 font-body text-sm text-ink focus:outline-none focus:border-indigo" />
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block font-ui text-[11px] tracking-widest uppercase text-ink-muted mb-2">Secondary Label</label>
+                  <input type="text" value={activeForm.cta_secondary_label || ""} onChange={(e) => handleUpdate("cta_secondary_label", e.target.value)} className="w-full bg-paper-card border border-border p-3 font-body text-sm text-ink focus:outline-none focus:border-indigo" />
+                </div>
+                <div>
+                  <label className="block font-ui text-[11px] tracking-widest uppercase text-ink-muted mb-2">Secondary URL</label>
+                  <input type="text" value={activeForm.cta_secondary_href || ""} onChange={(e) => handleUpdate("cta_secondary_href", e.target.value)} className="w-full bg-paper-card border border-border p-3 font-body text-sm text-ink focus:outline-none focus:border-indigo" />
+                </div>
+              </div>
             </div>
             
-            <div className="space-y-3">
-              {journey.map((step, index) => (
-                <div key={index} className="flex gap-4 items-start bg-paper-card border border-border p-4 rounded-sm">
-                  <div className="flex flex-col gap-1 mt-1">
-                    <button onClick={() => moveJourneyStep(index, 'up')} disabled={index === 0} className="p-1 text-ink-muted hover:text-ink disabled:opacity-30 disabled:cursor-not-allowed">
-                      <ArrowUp size={14} />
-                    </button>
-                    <span className="text-center font-ui text-[10px] text-ink-muted">{step.sort_order}</span>
-                    <button onClick={() => moveJourneyStep(index, 'down')} disabled={index === journey.length - 1} className="p-1 text-ink-muted hover:text-ink disabled:opacity-30 disabled:cursor-not-allowed">
-                      <ArrowDown size={14} />
-                    </button>
-                  </div>
-                  <div className="flex-1 space-y-3">
-                    <div className="grid grid-cols-[100px_1fr] gap-3">
-                      <input type="text" placeholder="Year" value={step.year} onChange={(e) => updateJourneyStep(index, 'year', e.target.value)} className="w-full bg-paper border border-border p-2 font-display text-sm focus:outline-none focus:border-indigo" />
-                      <input type="text" placeholder="Title" value={step.title} onChange={(e) => updateJourneyStep(index, 'title', e.target.value)} className="w-full bg-paper border border-border p-2 font-display text-sm focus:outline-none focus:border-indigo" />
-                    </div>
-                    <textarea placeholder="Body" value={step.body} onChange={(e) => updateJourneyStep(index, 'body', e.target.value)} rows={2} className="w-full bg-paper border border-border p-2 font-body text-sm focus:outline-none focus:border-indigo" />
-                  </div>
-                  <button onClick={() => removeJourneyStep(index)} className="p-2 text-ink-muted hover:text-red-500 transition-colors mt-1">
-                    <Trash2 size={16} />
-                  </button>
-                </div>
-              ))}
-              {journey.length === 0 && (
-                <div className="text-center p-6 border border-dashed border-border text-[13px] font-body text-ink-muted">
-                  No journey steps added.
-                </div>
-              )}
+            <div>
+              <h3 className="font-ui text-[13px] tracking-widest uppercase text-ink mb-4">Hero Image</h3>
+              <ImageUpload 
+                label="Hero Image URL (Optional)" 
+                currentImageUrl={activeForm.image_url} 
+                onUploadSuccess={(url) => handleUpdate("image_url", url)} 
+              />
             </div>
           </div>
         </div>
       </section>
-
     </div>
   );
 }

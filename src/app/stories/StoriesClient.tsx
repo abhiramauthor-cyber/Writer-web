@@ -6,9 +6,17 @@ import IkatDivider from "@/components/IkatDivider";
 import StoryCard, { type StoryData } from "@/components/StoryCard";
 import { categories, type Category } from "@/lib/constants";
 
-export default function StoriesClient({ stories }: { stories: StoryData[] }) {
+export default function StoriesClient({ stories, hero }: { stories: StoryData[], hero: any }) {
   const [activeCategory, setActiveCategory] = useState<Category>("All");
   const [searchQuery, setSearchQuery] = useState("");
+
+  const eyebrow = hero?.eyebrow || "Card No. 002 · The Full Catalog";
+  const heading = hero?.heading || "The Catalog";
+  const subheading = hero?.subheading || "Every story, catalogued and kept.";
+  
+  const words = heading.split(" ");
+  const lastWord = words.pop();
+  const restOfHeading = words.join(" ");
 
   const filteredStories = stories.filter((story) => {
     const matchesCategory =
@@ -23,14 +31,22 @@ export default function StoriesClient({ stories }: { stories: StoryData[] }) {
     <>
       <header className="max-w-6xl mx-auto px-6 md:px-10 pt-16 md:pt-20 pb-16">
         <p className="text-[11px] tracking-[0.24em] uppercase text-indigo mb-5 font-ui">
-          Card No. 002 &middot; The Full Catalog
+          {eyebrow}
         </p>
         <h1 className="font-display text-ink leading-[0.98] text-[44px] sm:text-[56px] md:text-[64px]">
-          The <span className="italic text-marigold-text">Catalog</span>
+          {restOfHeading ? (
+            <>
+              {restOfHeading} <span className="italic text-marigold-text">{lastWord}</span>
+            </>
+          ) : (
+            heading
+          )}
         </h1>
-        <p className="mt-4 font-display italic text-xl md:text-2xl text-ink-soft max-w-lg">
-          Every story, catalogued and kept.
-        </p>
+        {subheading && (
+          <p className="mt-4 font-display italic text-xl md:text-2xl text-ink-soft max-w-lg">
+            {subheading}
+          </p>
+        )}
 
         <div className="mt-16">
           <IkatDivider tone="mixed" />

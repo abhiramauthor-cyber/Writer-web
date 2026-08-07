@@ -1,9 +1,9 @@
-import { getPageContent } from "@/lib/data";
+import { createClient } from "@/lib/supabase/server";
 import PagesClient from "./PagesClient";
 
 export default async function PagesServer() {
-  const aboutContent = await getPageContent("about");
-  const bookContent = await getPageContent("book");
+  const supabase = await createClient();
+  const { data: heroes } = await supabase.from("page_hero").select("*");
 
-  return <PagesClient aboutContent={aboutContent || {}} bookContent={bookContent || {}} />;
+  return <PagesClient heroes={heroes || []} />;
 }

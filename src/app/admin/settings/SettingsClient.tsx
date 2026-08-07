@@ -1,117 +1,192 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { updateSiteSettings, updateSocialLinks } from "../actions";
+import { updateSiteSettings, updateAuthorProfile } from "../actions";
 import { Save } from "lucide-react";
+import ImageUpload from "../components/ImageUpload";
 
 export default function SettingsClient({
-  initialMaintenanceMode,
-  initialSocialLinks,
+  initialSettings,
+  initialAuthor,
 }: {
-  initialMaintenanceMode: boolean;
-  initialSocialLinks: any;
+  initialSettings: any;
+  initialAuthor: any;
 }) {
-  const [isMaintenanceMode, setIsMaintenanceMode] = useState(initialMaintenanceMode);
   const [isPending, startTransition] = useTransition();
 
-  const [socials, setSocials] = useState({
-    instagram: { url: initialSocialLinks?.instagram?.url || "", handle: initialSocialLinks?.instagram?.handle || "" },
-    twitter: { url: initialSocialLinks?.twitter?.url || "", handle: initialSocialLinks?.twitter?.handle || "" },
-    email: initialSocialLinks?.email || "",
+  const [settings, setSettings] = useState({
+    site_name: initialSettings?.site_name || "",
+    tagline: initialSettings?.tagline || "",
+    footer_blurb: initialSettings?.footer_blurb || "",
+    meta_description: initialSettings?.meta_description || "",
+    og_image_url: initialSettings?.og_image_url || "",
+    newsletter_heading: initialSettings?.newsletter_heading || "",
+    newsletter_body: initialSettings?.newsletter_body || "",
+    social_instagram_url: initialSettings?.social_instagram_url || "",
+    social_twitter_url: initialSettings?.social_twitter_url || "",
+    social_email: initialSettings?.social_email || "",
+    stamp_est_year: initialSettings?.stamp_est_year || "",
   });
 
-  const handleToggle = () => {
-    const newValue = !isMaintenanceMode;
-    setIsMaintenanceMode(newValue);
+  const [author, setAuthor] = useState({
+    name: initialAuthor?.name || "",
+    avatar_url: initialAuthor?.avatar_url || "",
+    bio_paragraphs: initialAuthor?.bio_paragraphs ? initialAuthor.bio_paragraphs.join("\n\n") : "",
+  });
+
+  const handleSaveSettings = () => {
     startTransition(() => {
-      updateSiteSettings(newValue).catch(e => alert(e.message));
+      updateSiteSettings(settings)
+        .then(() => alert("Settings saved!"))
+        .catch((e) => alert("Error saving settings: " + e.message));
     });
   };
 
-  const handleSaveSocials = () => {
+  const handleSaveAuthor = () => {
     startTransition(() => {
-      updateSocialLinks(socials).then(() => {
-        alert("Social links saved!");
-      }).catch(e => {
-        alert("Error saving socials: " + e.message);
-      });
+      const bioArray = author.bio_paragraphs.split("\n\n").filter((p: string) => p.trim() !== "");
+      updateAuthorProfile({ ...author, bio_paragraphs: bioArray })
+        .then(() => alert("Author profile saved!"))
+        .catch((e) => alert("Error saving author profile: " + e.message));
     });
   };
 
   return (
-    <div className="max-w-3xl">
-      <h1 className="font-display text-4xl text-ink mb-2">Settings</h1>
-      <p className="text-ink-soft font-body mb-10">Configure global website settings and links.</p>
+    <div className="max-w-4xl space-y-12 pb-20">
+      <div>
+        <h1 className="font-display text-4xl text-ink mb-2">Settings</h1>
+        <p className="text-ink-soft font-body">Configure global website settings and author profile.</p>
+      </div>
 
-      {/* Visibility */}
-      <div className="bg-paper border border-border p-8 rounded-md mb-8">
-        <div className="flex items-center justify-between">
-          <div>
-            <h3 className="font-display text-xl text-ink">Maintenance Mode</h3>
-            <p className="text-[14px] text-ink-soft font-body mt-1 max-w-sm">
-              When active, visitors will see a "Coming Soon" screen. You will still be able to browse the site normally.
-            </p>
-          </div>
-          
+      {/* Author Profile */}
+      <section className="bg-paper border border-border p-8 rounded-md">
+        <div className="flex items-center justify-between mb-8">
+          <h2 className="font-display text-2xl text-ink">Author Profile</h2>
           <button
-            onClick={handleToggle}
+            onClick={handleSaveAuthor}
             disabled={isPending}
-            className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-              isMaintenanceMode ? "bg-marigold" : "bg-border"
-            }`}
+            className="flex items-center gap-2 bg-indigo text-paper px-4 py-2 text-[11px] font-ui tracking-widest uppercase hover:bg-ink transition-colors disabled:opacity-50"
           >
-            <span
-              className={`inline-block h-4 w-4 transform rounded-full bg-paper transition-transform ${
-                isMaintenanceMode ? "translate-x-6" : "translate-x-1"
-              }`}
+            <Save size={14} /> Save Profile
+          </button>
+        </div>
+        
+        <div className="grid md:grid-cols-2 gap-8">
+          <div className="space-y-6">
+            <div>
+              <label className="block font-ui text-[11px] tracking-widest uppercase text-ink-muted mb-2">Author Name</label>
+              <input type="text" value={author.name} onChange={(e) => setAuthor({...author, name: e.target.value})} className="w-full bg-paper-card border border-border p-3 font-body text-sm text-ink focus:outline-none focus:border-indigo" />
+            </div>
+            <div>
+              <label className="block font-ui text-[11px] tracking-widest uppercase text-ink-muted mb-2">Biography (Separate paragraphs with blank lines)</label>
+              <textarea 
+                rows={8} 
+                value={author.bio_paragraphs} 
+                onChange={(e) => setAuthor({...author, bio_paragraphs: e.target.value})} 
+                className="w-full bg-paper-card border border-border p-3 font-body text-sm text-ink focus:outline-none focus:border-indigo" />
+            </div>
+          </div>
+          <div>
+            <ImageUpload 
+              label="Avatar Image" 
+              currentImageUrl={author.avatar_url} 
+              onUploadSuccess={(url) => setAuthor({...author, avatar_url: url})} 
             />
-          </button>
+          </div>
         </div>
-      </div>
+      </section>
 
-      {/* Social Links */}
-      <div className="bg-paper border border-border p-8 rounded-md">
-        <div className="flex items-center justify-between mb-6">
-          <h3 className="font-display text-xl text-ink">Social Links</h3>
+      {/* Global Settings */}
+      <section className="bg-paper border border-border p-8 rounded-md">
+        <div className="flex items-center justify-between mb-8">
+          <h2 className="font-display text-2xl text-ink">Global Settings</h2>
           <button
-            onClick={handleSaveSocials}
+            onClick={handleSaveSettings}
             disabled={isPending}
-            className="flex items-center gap-2 bg-indigo text-paper px-4 py-2 text-[11px] font-ui tracking-widest uppercase hover:bg-ink transition-colors"
+            className="flex items-center gap-2 bg-indigo text-paper px-4 py-2 text-[11px] font-ui tracking-widest uppercase hover:bg-ink transition-colors disabled:opacity-50"
           >
-            <Save size={14} /> Save Links
+            <Save size={14} /> Save Settings
           </button>
         </div>
 
-        <div className="space-y-6">
-          <div className="grid grid-cols-2 gap-4">
+        <div className="space-y-8">
+          {/* Brand */}
+          <div className="grid md:grid-cols-2 gap-6">
             <div>
-              <label className="block font-ui text-[11px] tracking-widest uppercase text-ink-muted mb-2">Instagram URL</label>
-              <input type="url" value={socials.instagram.url} onChange={(e) => setSocials({...socials, instagram: {...socials.instagram, url: e.target.value}})} className="w-full bg-paper-card border border-border p-3 font-body text-sm text-ink focus:outline-none focus:border-indigo" placeholder="https://instagram.com/..." />
+              <label className="block font-ui text-[11px] tracking-widest uppercase text-ink-muted mb-2">Site Name</label>
+              <input type="text" value={settings.site_name} onChange={(e) => setSettings({...settings, site_name: e.target.value})} className="w-full bg-paper-card border border-border p-3 font-body text-sm text-ink focus:outline-none focus:border-indigo" />
             </div>
             <div>
-              <label className="block font-ui text-[11px] tracking-widest uppercase text-ink-muted mb-2">Instagram Handle (Display)</label>
-              <input type="text" value={socials.instagram.handle} onChange={(e) => setSocials({...socials, instagram: {...socials.instagram, handle: e.target.value}})} className="w-full bg-paper-card border border-border p-3 font-body text-sm text-ink focus:outline-none focus:border-indigo" placeholder="@handle" />
-            </div>
-          </div>
-          
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="block font-ui text-[11px] tracking-widest uppercase text-ink-muted mb-2">Twitter/X URL</label>
-              <input type="url" value={socials.twitter.url} onChange={(e) => setSocials({...socials, twitter: {...socials.twitter, url: e.target.value}})} className="w-full bg-paper-card border border-border p-3 font-body text-sm text-ink focus:outline-none focus:border-indigo" placeholder="https://twitter.com/..." />
+              <label className="block font-ui text-[11px] tracking-widest uppercase text-ink-muted mb-2">Tagline</label>
+              <input type="text" value={settings.tagline} onChange={(e) => setSettings({...settings, tagline: e.target.value})} className="w-full bg-paper-card border border-border p-3 font-body text-sm text-ink focus:outline-none focus:border-indigo" />
             </div>
             <div>
-              <label className="block font-ui text-[11px] tracking-widest uppercase text-ink-muted mb-2">Twitter/X Handle (Display)</label>
-              <input type="text" value={socials.twitter.handle} onChange={(e) => setSocials({...socials, twitter: {...socials.twitter, handle: e.target.value}})} className="w-full bg-paper-card border border-border p-3 font-body text-sm text-ink focus:outline-none focus:border-indigo" placeholder="@handle" />
+              <label className="block font-ui text-[11px] tracking-widest uppercase text-ink-muted mb-2">Footer Blurb</label>
+              <textarea rows={3} value={settings.footer_blurb} onChange={(e) => setSettings({...settings, footer_blurb: e.target.value})} className="w-full bg-paper-card border border-border p-3 font-body text-sm text-ink focus:outline-none focus:border-indigo" />
+            </div>
+            <div>
+              <label className="block font-ui text-[11px] tracking-widest uppercase text-ink-muted mb-2">Stamp / Est. Year</label>
+              <input type="text" value={settings.stamp_est_year} onChange={(e) => setSettings({...settings, stamp_est_year: e.target.value})} className="w-full bg-paper-card border border-border p-3 font-body text-sm text-ink focus:outline-none focus:border-indigo" />
             </div>
           </div>
 
+          <hr className="border-border" />
+
+          {/* SEO & Meta */}
+          <div className="grid md:grid-cols-2 gap-6">
+            <div>
+              <label className="block font-ui text-[11px] tracking-widest uppercase text-ink-muted mb-2">Meta Description</label>
+              <textarea rows={3} value={settings.meta_description} onChange={(e) => setSettings({...settings, meta_description: e.target.value})} className="w-full bg-paper-card border border-border p-3 font-body text-sm text-ink focus:outline-none focus:border-indigo" />
+            </div>
+            <div>
+              <ImageUpload 
+                label="OG Image (Social Sharing)" 
+                currentImageUrl={settings.og_image_url} 
+                onUploadSuccess={(url) => setSettings({...settings, og_image_url: url})} 
+              />
+            </div>
+          </div>
+
+          <hr className="border-border" />
+
+          {/* Social Links */}
           <div>
-            <label className="block font-ui text-[11px] tracking-widest uppercase text-ink-muted mb-2">Email Address</label>
-            <input type="email" value={socials.email} onChange={(e) => setSocials({...socials, email: e.target.value})} className="w-full bg-paper-card border border-border p-3 font-body text-sm text-ink focus:outline-none focus:border-indigo" placeholder="hello@example.com" />
+            <h3 className="font-ui text-[13px] tracking-widest uppercase text-ink mb-4">Social & Contact</h3>
+            <div className="grid md:grid-cols-3 gap-6">
+              <div>
+                <label className="block font-ui text-[11px] tracking-widest uppercase text-ink-muted mb-2">Instagram URL</label>
+                <input type="url" value={settings.social_instagram_url} onChange={(e) => setSettings({...settings, social_instagram_url: e.target.value})} className="w-full bg-paper-card border border-border p-3 font-body text-sm text-ink focus:outline-none focus:border-indigo" />
+              </div>
+              <div>
+                <label className="block font-ui text-[11px] tracking-widest uppercase text-ink-muted mb-2">Twitter / X URL</label>
+                <input type="url" value={settings.social_twitter_url} onChange={(e) => setSettings({...settings, social_twitter_url: e.target.value})} className="w-full bg-paper-card border border-border p-3 font-body text-sm text-ink focus:outline-none focus:border-indigo" />
+              </div>
+              <div>
+                <label className="block font-ui text-[11px] tracking-widest uppercase text-ink-muted mb-2">Contact Email</label>
+                <input type="email" value={settings.social_email} onChange={(e) => setSettings({...settings, social_email: e.target.value})} className="w-full bg-paper-card border border-border p-3 font-body text-sm text-ink focus:outline-none focus:border-indigo" />
+              </div>
+            </div>
           </div>
-        </div>
-      </div>
 
+          <hr className="border-border" />
+
+          {/* Newsletter */}
+          <div>
+            <h3 className="font-ui text-[13px] tracking-widest uppercase text-ink mb-4">Newsletter Section</h3>
+            <div className="grid md:grid-cols-2 gap-6">
+              <div>
+                <label className="block font-ui text-[11px] tracking-widest uppercase text-ink-muted mb-2">Heading</label>
+                <input type="text" value={settings.newsletter_heading} onChange={(e) => setSettings({...settings, newsletter_heading: e.target.value})} className="w-full bg-paper-card border border-border p-3 font-body text-sm text-ink focus:outline-none focus:border-indigo" />
+              </div>
+              <div>
+                <label className="block font-ui text-[11px] tracking-widest uppercase text-ink-muted mb-2">Body Text</label>
+                <input type="text" value={settings.newsletter_body} onChange={(e) => setSettings({...settings, newsletter_body: e.target.value})} className="w-full bg-paper-card border border-border p-3 font-body text-sm text-ink focus:outline-none focus:border-indigo" />
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </section>
     </div>
   );
 }

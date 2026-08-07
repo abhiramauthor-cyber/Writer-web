@@ -18,6 +18,7 @@ interface NavProps {
 export default async function Nav(props: NavProps) {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
+  const { data: settings } = await supabase.from('site_settings').select('site_name').eq('id', 1).single();
 
-  return <NavClient {...props} user={user} />;
+  return <NavClient {...props} user={user} siteName={settings?.site_name || "Writer Lokam"} />;
 }

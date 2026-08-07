@@ -1,11 +1,14 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useTransition } from "react";
 import { Send } from "lucide-react";
+import { submitContactMessage } from "@/app/actions";
 
 export default function ContactForm() {
   const [form, setForm] = useState({ name: "", email: "", message: "" });
   const [sent, setSent] = useState(false);
+  const [errorMsg, setErrorMsg] = useState("");
+  const [isPending, startTransition] = useTransition();
 
   const handleChange =
     (field: "name" | "email" | "message") =>
@@ -14,7 +17,14 @@ export default function ContactForm() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (form.name && form.email && form.message) setSent(true);
+    if (form.name && form.email && form.message) {
+      setErrorMsg("");
+      startTransition(() => {
+        submitContactMessage(form)
+          .then(() => setSent(true))
+          .catch((e) => setErrorMsg(e.message));
+      });
+    }
   };
 
   return (
@@ -82,11 +92,19 @@ export default function ContactForm() {
               className="w-full bg-paper-card border border-border px-4 py-3 text-sm text-ink placeholder-placeholder focus:outline-none focus:border-indigo font-body resize-none"
             />
           </div>
+          {errorMsg && (
+            <div className="text-rust text-sm font-body">
+              {errorMsg}
+            </div>
+          )}
           <button
             type="submit"
-            className="inline-flex items-center gap-2 bg-ink text-paper text-[11px] tracking-[0.18em] uppercase px-7 py-4 hover:bg-indigo transition-colors font-ui"
+            disabled={isPending}
+            className="inline-flex items-center gap-2 bg-ink text-paper text-[11px] tracking-[0.18em] uppercase px-7 py-4 hover:bg-indigo transition-colors font-ui disabled:opacity-50"
           >
-            <Send size={14} /> Send message
+            {isPending ? "Sending..." : (
+              <><Send size={14} /> Send message</>
+            )}
           </button>
         </form>
       )}

@@ -2,6 +2,7 @@
 
 import { createClient } from "@/lib/supabase/server";
 import { revalidatePath } from "next/cache";
+import { z } from "zod";
 
 export async function toggleLike(storyId: string, currentStatus: boolean, path: string) {
   const supabase = await createClient();
@@ -85,3 +86,31 @@ export async function subscribeToNewsletter(email: string) {
     throw new Error(error.message);
   }
 }
+
+const contactSchema = z.object({
+  name: z.string().min(1, "Name is required").max(100, "Name is too long"),
+  email: z.string().email("Invalid email address"),
+  message: z.string().min(1, "Message is required").max(2000, "Message is too long"),
+});
+
+export async function submitContactMessage(formData: { name: string, email: string, message: string }) {
+  const result = contactSchema.safeParse(formData);
+  
+  if (!result.success) {
+    throw new Error(result.error.issues[0].message);
+  }
+
+  const supabase = await createClient();
+
+  const { error } = await supabase.from("contact_messages").insert({
+    name: result.data.name,
+    email: result.data.email,
+    message: result.data.message,
+    status: 'unread'
+  });
+
+  if (error) {
+    throw new Error("Failed to send message. Please try again later.");
+  }
+}
+
