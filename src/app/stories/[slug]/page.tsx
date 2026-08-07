@@ -24,7 +24,7 @@ const threadColorMap: Record<string, string> = {
 };
 
 export async function generateStaticParams() {
-  const stories = getAllStories();
+  const stories = await getAllStories();
   return stories.map((story) => ({
     slug: story.slug,
   }));
@@ -32,7 +32,7 @@ export async function generateStaticParams() {
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
-  const storyData = getStoryBySlug(slug);
+  const storyData = await getStoryBySlug(slug);
 
   if (!storyData) {
     return {};
@@ -53,7 +53,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 
 export default async function StoryPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
-  const storyData = getStoryBySlug(slug);
+  const storyData = await getStoryBySlug(slug);
 
   if (!storyData) {
     notFound();
@@ -111,10 +111,6 @@ export default async function StoryPage({ params }: { params: Promise<{ slug: st
     }
   }
 
-  // Find related stories
-  const allStories = getAllStories();
-  const related = allStories.filter((s) => s.slug !== slug).slice(0, 2);
-
   return (
     <>
       <ReadingProgress />
@@ -142,8 +138,11 @@ export default async function StoryPage({ params }: { params: Promise<{ slug: st
       </article>
 
       <AuthorNote />
+      {/* Related Stories */}
+      <div className="max-w-4xl mx-auto mt-16 md:mt-24 mb-16 md:mb-24 px-6 md:px-0">
+        <RelatedStories currentSlug={slug} allStories={await getAllStories()} />
+      </div>
       <Comments storyId={storyId} initialComments={initialComments} />
-      <RelatedStories related={related} />
       <StoryMinimalFooter />
     </>
   );
@@ -203,7 +202,11 @@ function AuthorNote() {
   );
 }
 
-function RelatedStories({ related }: { related: StoryData[] }) {
+function RelatedStories({ currentSlug, allStories }: { currentSlug: string, allStories: StoryData[] }) {
+  const related = allStories.filter((s) => s.slug !== currentSlug).slice(0, 2);
+
+  if (related.length === 0) return null;
+
   return (
     <section className="bg-indigo">
       <div className="max-w-2xl mx-auto px-6 md:px-10 py-14">

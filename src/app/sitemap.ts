@@ -1,7 +1,7 @@
 import type { MetadataRoute } from "next";
 import { getAllStories } from "@/lib/data";
 
-export default function sitemap(): MetadataRoute.Sitemap {
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://writerlokam.com";
 
   // Static routes
@@ -13,7 +13,8 @@ export default function sitemap(): MetadataRoute.Sitemap {
   }));
 
   // Dynamic story routes
-  const stories = getAllStories().map((story) => ({
+  const allStories = await getAllStories();
+  const stories = allStories.map((story) => ({
     url: `${baseUrl}/stories/${story.slug}`,
     lastModified: new Date((story as any).publishDate || Date.now()),
     changeFrequency: "yearly" as const,

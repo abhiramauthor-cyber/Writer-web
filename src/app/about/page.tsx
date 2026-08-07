@@ -1,5 +1,6 @@
 import { ArrowRight, Mail } from "lucide-react";
 import Link from "next/link";
+import { getPageContent } from "@/lib/data";
 import Nav from "@/components/Nav";
 import Footer from "@/components/Footer";
 import IkatDivider from "@/components/IkatDivider";
@@ -28,20 +29,17 @@ const journey = [
   },
 ];
 
-const achievements = [
-  "Author, Two States, One Heart",
-  "Original short fiction published monthly on Writer Lokam",
-  "Writing in both Telugu and English",
-];
+export default async function AboutPage() {
+  const aboutContent = await getPageContent("about");
 
-export default function AboutPage() {
   return (
     <>
       <Nav activePage="about" cta={{ label: "Get in Touch", href: "#contact" }} />
       <AboutHero />
-      <Biography />
+      <Biography content={aboutContent} />
+      <IkatDivider tone="indigo" />
       <Journey />
-      <Achievements />
+      <Achievements content={aboutContent} />
       <SocialLinks />
       <ContactForm />
       <Footer />
@@ -77,7 +75,10 @@ function AboutHero() {
   );
 }
 
-function Biography() {
+
+function Biography({ content }: { content: any }) {
+  const bioText = content?.bio || "I grew up listening to two kinds of stories — the ones told at the dinner table, and the ones I made up on the way home from school. Somewhere along the way, the second kind started to feel like the more honest version of the first.";
+
   return (
     <section className="bg-paper-card border-y border-border">
       <div className="max-w-6xl mx-auto px-6 md:px-10 py-16 md:py-20">
@@ -87,25 +88,8 @@ function Biography() {
         <h2 className="font-display text-3xl md:text-4xl text-ink mb-6">
           A little about me
         </h2>
-        <div className="max-w-2xl space-y-5 text-[15px] text-ink-soft leading-relaxed font-body">
-          <p>
-            I grew up listening to two kinds of stories — the ones told at the
-            dinner table, and the ones I made up on the way home from school.
-            Somewhere along the way, the second kind started to feel like the
-            more honest version of the first.
-          </p>
-          <p>
-            Most of what I write starts as an overheard argument, a
-            half-finished sentence, or a silence that went on a little too long.
-            I&apos;m drawn to the small, unresolved moments inside families — the
-            ones nobody puts in a wedding speech, but everybody remembers.
-          </p>
-          <p>
-            Writer Lokam is where I keep that work: short stories published as
-            they&apos;re written, and Two States, One Heart, the novel that took
-            the longest silence I ever noticed and gave it a few hundred pages
-            to work itself out.
-          </p>
+        <div className="max-w-2xl space-y-5 text-[15px] text-ink-soft leading-relaxed font-body whitespace-pre-wrap">
+          <p>{bioText}</p>
         </div>
       </div>
     </section>
@@ -144,7 +128,13 @@ function Journey() {
   );
 }
 
-function Achievements() {
+function Achievements({ content }: { content: any }) {
+  const achievements = content?.achievements || [
+    { title: "Author, Two States, One Heart", year: "2023" },
+    { title: "Original short fiction published monthly on Writer Lokam", year: "2024" },
+    { title: "Writing in both Telugu and English", year: "Ongoing" },
+  ];
+
   return (
     <section className="bg-indigo">
       <div className="max-w-6xl mx-auto px-6 md:px-10 py-16 md:py-20">
@@ -155,13 +145,13 @@ function Achievements() {
           On the record
         </h2>
         <div className="grid sm:grid-cols-3 gap-6">
-          {achievements.map((a, i) => (
+          {achievements.map((a: { title: string; year: string }, i: number) => (
             <div key={i} className="border border-indigo-border p-6">
               <span className="font-ui text-[11px] tracking-wider text-indigo-muted block mb-3">
-                {String(i + 1).padStart(2, "0")}
+                {a.year}
               </span>
               <p className="text-[14.5px] text-indigo-light leading-relaxed font-body">
-                {a}
+                {a.title}
               </p>
             </div>
           ))}

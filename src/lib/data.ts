@@ -1,62 +1,76 @@
-import fs from "fs";
-import path from "path";
-import matter from "gray-matter";
+import { supabaseAdmin } from "./supabase/admin";
 import type { StoryData } from "@/components/StoryCard";
 
-const contentDir = path.join(process.cwd(), "src/content/stories");
+export async function getAllStories(includeDrafts = false): Promise<StoryData[]> {
+  let query = supabaseAdmin
+    .from("stories")
+    .select("*")
+    .order("catalog_no", { ascending: false });
 
-export function getAllStories(): StoryData[] {
-  // Check if directory exists first (helpful during build if it doesn't)
-  if (!fs.existsSync(contentDir)) {
+  if (!includeDrafts) {
+    query = query.eq("is_published", true);
+  }
+
+  const { data, error } = await query;
+
+  if (error || !data) {
     return [];
   }
 
-  const fileNames = fs.readdirSync(contentDir);
-  
-  const stories = fileNames
-    .filter((fileName) => fileName.endsWith(".mdx"))
-    .map((fileName) => {
-      const slug = fileName.replace(/\.mdx$/, "");
-      const fullPath = path.join(contentDir, fileName);
-      const fileContents = fs.readFileSync(fullPath, "utf8");
-      
-      const { data } = matter(fileContents);
-      
-      return {
-        slug,
-        no: data.catalogNo,
-        title: data.title,
-        excerpt: data.excerpt,
-        category: data.category,
-        thread: data.thread,
-        readTime: data.readTime,
-        publishDate: data.publishDate, // Assuming we want to sort by this
-      } as StoryData & { publishDate: string };
-    });
-
-  // Sort stories by catalogNo descending for now (or publishDate)
-  return stories.sort((a, b) => parseInt(b.no) - parseInt(a.no));
+  return data.map((story) => ({
+    no: String(story.catalog_no).padStart(3, '0'),
+    slug: story.slug,
+    title: story.title,
+    excerpt: story.excerpt || "",
+    category: story.category,
+    thread: "indigo", // Defaulting, you could store this in DB if needed
+    readTime: `${story.read_time_minutes || 5} min read`,
+    publishDate: story.published_at,
+  }));
 }
 
-export function getStoryBySlug(slug: string) {
-  const fullPath = path.join(contentDir, `${slug}.mdx`);
-  
-  if (!fs.existsSync(fullPath)) {
+export async function getStoryBySlug(slug: string, includeDrafts = false) {
+  let query = supabaseAdmin
+    .from("stories")
+    .select("*")
+    .eq("slug", slug)
+    .single();
+
+  const { data, error } = await query;
+
+  if (error || !data) {
     return null;
   }
 
-  const fileContents = fs.readFileSync(fullPath, "utf8");
-  const { data, content } = matter(fileContents);
-  
+  // If we shouldn't include drafts and it's not published, return null
+  if (!includeDrafts && !data.is_published) {
+    return null;
+  }
+
   return {
     frontmatter: {
-      no: data.catalogNo,
+      no: String(data.catalog_no).padStart(3, '0'),
+      slug: data.slug,
       title: data.title,
-      excerpt: data.excerpt,
+      excerpt: data.excerpt || "",
       category: data.category,
-      thread: data.thread,
-      readTime: data.readTime,
+      thread: "indigo",
+      readTime: `${data.read_time_minutes || 5} min read`,
+      publishDate: data.published_at,
     } as StoryData,
-    content,
+    content: data.body_mdx,
   };
+}
+
+export async function getPageContent(slug: string) {
+  const { data, error } = await supabaseAdmin
+    .from("page_content")
+    .select("content")
+    .eq("slug", slug)
+    .single();
+
+  if (error || !data) {
+    return null;
+  }
+  return data.content;
 }

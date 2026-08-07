@@ -11,7 +11,7 @@ export const metadata: Metadata = {
 };
 
 export default async function StoriesIndexPage() {
-  const stories = getAllStories();
+  const stories = await getAllStories();
 
   return (
     <>

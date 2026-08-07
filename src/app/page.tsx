@@ -6,7 +6,7 @@ import IkatDivider from "@/components/IkatDivider";
 import Stamp from "@/components/Stamp";
 import StoryCard from "@/components/StoryCard";
 import Newsletter from "@/components/Newsletter";
-import { getAllStories } from "@/lib/data";
+import { getAllStories, getPageContent } from "@/lib/data";
 
 /**
  * Homepage — "Card No. 001 · Original Short Fiction"
@@ -23,12 +23,14 @@ export const metadata: Metadata = {
 };
 
 export default async function HomePage() {
-  const stories = getAllStories().slice(0, 3); // Get latest 3 stories
+  const allStories = await getAllStories();
+  const stories = allStories.slice(0, 3); // Get latest 3 stories
+  const homeContent = await getPageContent("home");
 
   return (
     <>
       <Nav cta={{ label: "Read Stories", href: "/stories" }} />
-      <Hero />
+      <Hero content={homeContent} />
       <Stories stories={stories} />
       <BookShowcase />
       <Newsletter />
@@ -38,7 +40,10 @@ export default async function HomePage() {
 }
 
 /* ─── Hero ─── */
-function Hero() {
+function Hero({ content }: { content: any }) {
+  const title = content?.hero_title || "Writer Lokam";
+  const subtitle = content?.hero_subtitle || "A reading room of original fiction about love, memory, hope, and longing — catalogued, kept, and added to every month.";
+
   return (
     <section className="max-w-6xl mx-auto px-6 md:px-10 pt-16 md:pt-24 pb-16">
       <div className="grid md:grid-cols-[1fr_auto] gap-10 items-start">
@@ -55,8 +60,7 @@ function Hero() {
             Two threads, dyed separately. Woven into one story.
           </p>
           <p className="mt-4 text-[15px] text-nav-muted max-w-md leading-relaxed font-body">
-            A reading room of original fiction about love, memory, hope, and
-            longing — catalogued, kept, and added to every month.
+            {subtitle}
           </p>
 
           <div className="mt-10 flex flex-wrap gap-4">
