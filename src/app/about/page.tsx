@@ -20,7 +20,7 @@ export default async function AboutPage() {
   return (
     <>
       <Nav activePage="about" cta={{ label: "Get in Touch", href: "#contact" }} />
-      <AboutHero />
+      <AboutHero content={content} />
       <Biography content={content} />
       {journey.length > 0 && (
         <section className="bg-paper-card border-y border-border">
@@ -56,13 +56,22 @@ export default async function AboutPage() {
   );
 }
 
-function AboutHero() {
+function AboutHero({ content }: { content: any }) {
+  const imageUrl = content?.image_url;
+
   return (
     <section className="max-w-6xl mx-auto px-6 md:px-10 pt-16 md:pt-20 pb-16">
       <div className="grid md:grid-cols-[auto_1fr] gap-10 items-center">
-        <div className="w-28 h-28 md:w-36 md:h-36 rounded-full bg-indigo flex items-center justify-center font-display text-5xl italic text-paper shrink-0 mx-auto md:mx-0">
-          A
-        </div>
+        {imageUrl ? (
+          <div className="w-28 h-28 md:w-36 md:h-36 rounded-full overflow-hidden shrink-0 mx-auto md:mx-0 border-2 border-indigo">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={imageUrl} alt="Author" className="w-full h-full object-cover" />
+          </div>
+        ) : (
+          <div className="w-28 h-28 md:w-36 md:h-36 rounded-full bg-indigo flex items-center justify-center font-display text-5xl italic text-paper shrink-0 mx-auto md:mx-0">
+            A
+          </div>
+        )}
         <div>
           <p className="text-[11px] tracking-[0.24em] uppercase text-indigo mb-5 font-ui">
             Card No. 000 &middot; The Author

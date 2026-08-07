@@ -15,6 +15,7 @@ export default function PagesClient({
 
   // About State
   const [bio, setBio] = useState(aboutContent?.bio || "");
+  const [aboutImage, setAboutImage] = useState(aboutContent?.image_url || "");
   const [journey, setJourney] = useState<any[]>(aboutContent?.journey || []);
 
   // Book State
@@ -24,13 +25,14 @@ export default function PagesClient({
     synopsis: bookContent?.synopsis || "",
     buy_link: bookContent?.buy_link || "/book",
     sample_link: bookContent?.sample_link || "/book#sample",
+    image_url: bookContent?.image_url || "",
   });
 
   const handleSaveAbout = () => {
     startTransition(() => {
       // Re-sort journey by sort_order before saving just in case
       const sortedJourney = [...journey].sort((a, b) => a.sort_order - b.sort_order);
-      updateAboutContent({ bio, journey: sortedJourney }).then(() => alert("About page saved!")).catch(e => alert(e.message));
+      updateAboutContent({ bio, image_url: aboutImage, journey: sortedJourney }).then(() => alert("About page saved!")).catch(e => alert(e.message));
     });
   };
 
@@ -144,6 +146,16 @@ export default function PagesClient({
               />
             </div>
           </div>
+          <div>
+            <label className="block font-ui text-[11px] tracking-widest uppercase text-ink-muted mb-2">Cover Image URL (Optional)</label>
+            <input
+              type="url"
+              placeholder="https://..."
+              value={bookForm.image_url}
+              onChange={(e) => setBookForm({...bookForm, image_url: e.target.value})}
+              className="w-full bg-paper-card border border-border p-3 font-body text-sm text-ink focus:outline-none focus:border-indigo"
+            />
+          </div>
         </div>
       </section>
 
@@ -161,14 +173,32 @@ export default function PagesClient({
         </div>
         
         <div className="space-y-8">
-          <div>
-            <label className="block font-ui text-[11px] tracking-widest uppercase text-ink-muted mb-2">Biography</label>
-            <textarea
-              value={bio}
-              onChange={(e) => setBio(e.target.value)}
-              rows={6}
-              className="w-full bg-paper border border-border p-3 font-body text-sm text-ink focus:outline-none focus:border-indigo"
-            />
+          <div className="grid md:grid-cols-2 gap-8">
+            <div>
+              <label className="block font-ui text-[11px] tracking-widest uppercase text-ink-muted mb-2">Biography</label>
+              <textarea
+                value={bio}
+                onChange={(e) => setBio(e.target.value)}
+                rows={6}
+                className="w-full bg-paper border border-border p-3 font-body text-sm text-ink focus:outline-none focus:border-indigo"
+              />
+            </div>
+            <div>
+              <label className="block font-ui text-[11px] tracking-widest uppercase text-ink-muted mb-2">Profile Image URL (Optional)</label>
+              <input
+                type="url"
+                placeholder="https://..."
+                value={aboutImage}
+                onChange={(e) => setAboutImage(e.target.value)}
+                className="w-full bg-paper border border-border p-3 font-body text-sm text-ink focus:outline-none focus:border-indigo"
+              />
+              {aboutImage && (
+                <div className="mt-4 w-24 h-24 rounded-full overflow-hidden border border-border">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src={aboutImage} alt="Preview" className="w-full h-full object-cover" />
+                </div>
+              )}
+            </div>
           </div>
 
           <div>

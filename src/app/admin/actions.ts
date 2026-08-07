@@ -57,6 +57,7 @@ const JourneyItemSchema = z.object({
 
 const AboutContentSchema = z.object({
   bio: z.string().optional(),
+  image_url: z.string().url().optional().or(z.literal("")),
   journey: z.array(JourneyItemSchema).optional(),
 });
 
@@ -66,6 +67,7 @@ const BookContentSchema = z.object({
   synopsis: z.string(),
   buy_link: z.string(),
   sample_link: z.string(),
+  image_url: z.string().url().optional().or(z.literal("")),
 });
 
 export async function updateAboutContent(content: any) {

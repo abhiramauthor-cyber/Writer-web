@@ -131,6 +131,7 @@ function BookShowcase({ content }: { content: any }) {
   const subtitle = content?.subtitle || "Abhi · A Novel";
   const synopsis = content?.synopsis || "Two families, two languages, two ways of loving — and the couple caught in between, trying to weave something that honors both. A story about the quiet negotiations that hold a family together.";
   const buyLink = content?.buy_link || "/book";
+  const imageUrl = content?.image_url;
 
   return (
     <section className="bg-paper-card border-y border-border">
@@ -157,25 +158,37 @@ function BookShowcase({ content }: { content: any }) {
             </Link>
           </div>
           <div className="order-1 md:order-2 flex justify-center">
-            <div className="relative w-56 md:w-72 aspect-[2/3] bg-indigo p-7 flex flex-col justify-between">
-              <div
-                className="absolute inset-3 border border-dashed border-marigold/50"
-                aria-hidden="true"
-              />
-              <p className="relative text-[10px] tracking-[0.3em] uppercase text-gold font-ui">
-                Card No. 001
-              </p>
-              <div className="relative text-center">
-                <p className="font-display text-2xl leading-snug text-paper">
-                  Two States,
-                  <br />
-                  One Heart
+            {imageUrl ? (
+              <div className="relative w-56 md:w-72 aspect-[2/3] border border-border overflow-hidden bg-paper shadow-xl">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={imageUrl} alt={title} className="w-full h-full object-cover" />
+              </div>
+            ) : (
+              <div className="relative w-56 md:w-72 aspect-[2/3] bg-indigo p-7 flex flex-col justify-between shadow-xl">
+                <div
+                  className="absolute inset-3 border border-dashed border-marigold/50"
+                  aria-hidden="true"
+                />
+                <p className="relative text-[10px] tracking-[0.3em] uppercase text-gold font-ui">
+                  Card No. 001
+                </p>
+                <div className="relative text-center">
+                  <p className="font-display text-2xl leading-snug text-paper">
+                    {title.split(',').length > 1 ? (
+                      <>
+                        {title.split(',')[0]},<br/>
+                        {title.split(',').slice(1).join(',')}
+                      </>
+                    ) : (
+                      title
+                    )}
+                  </p>
+                </div>
+                <p className="relative text-[11px] tracking-[0.2em] uppercase text-paper/70 text-center font-ui">
+                  {subtitle}
                 </p>
               </div>
-              <p className="relative text-[11px] tracking-[0.2em] uppercase text-paper/70 text-center font-ui">
-                Abhi &middot; A Novel
-              </p>
-            </div>
+            )}
           </div>
         </div>
       </div>

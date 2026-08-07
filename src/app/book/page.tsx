@@ -41,11 +41,12 @@ export default async function BookPage() {
   const synopsis = content?.synopsis || "Two families, two languages, two ways of loving — and the couple caught in between, trying to weave something that honors both.";
   const buyLink = content?.buy_link || "#buy";
   const sampleLink = content?.sample_link || "#sample";
+  const imageUrl = content?.image_url;
 
   return (
     <>
       <Nav activePage="book" cta={{ label: "Buy the Book", href: buyLink }} />
-      <BookHero title={title} subtitle={subtitle} synopsis={synopsis} buyLink={buyLink} sampleLink={sampleLink} />
+      <BookHero title={title} subtitle={subtitle} synopsis={synopsis} buyLink={buyLink} sampleLink={sampleLink} imageUrl={imageUrl} />
       <AboutAuthor />
       <SampleChapter />
       <Reviews />
@@ -55,30 +56,42 @@ export default async function BookPage() {
   );
 }
 
-function BookHero({ title, subtitle, synopsis, buyLink, sampleLink }: { title: string, subtitle: string, synopsis: string, buyLink: string, sampleLink: string }) {
+function BookHero({ title, subtitle, synopsis, buyLink, sampleLink, imageUrl }: { title: string, subtitle: string, synopsis: string, buyLink: string, sampleLink: string, imageUrl?: string }) {
   return (
     <section className="max-w-6xl mx-auto px-6 md:px-10 pt-16 md:pt-20 pb-16">
       <div className="grid md:grid-cols-[auto_1fr] gap-14 md:gap-20 items-center">
-        <div className="mx-auto md:mx-0">
-          <div className="relative w-60 md:w-72 aspect-[2/3] bg-indigo p-7 flex flex-col justify-between shadow-[10px_10px_0_var(--color-border)]">
-            <div
-              className="absolute inset-3 border border-dashed border-marigold/50"
-              aria-hidden="true"
-            />
-            <p className="relative text-[10px] tracking-[0.3em] uppercase text-gold font-ui">
-              Card No. 001
-            </p>
-            <div className="relative text-center">
-              <p className="font-display text-3xl leading-snug text-paper">
-                Two States,
-                <br />
-                One Heart
+        <div className="order-1 md:order-2 flex justify-center">
+          {imageUrl ? (
+            <div className="relative w-64 md:w-80 aspect-[2/3] border border-border overflow-hidden bg-paper shadow-2xl">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={imageUrl} alt={title} className="w-full h-full object-cover" />
+            </div>
+          ) : (
+            <div className="relative w-64 md:w-80 aspect-[2/3] bg-indigo p-7 flex flex-col justify-between shadow-2xl">
+              <div
+                className="absolute inset-3 border border-dashed border-marigold/50"
+                aria-hidden="true"
+              />
+              <p className="relative text-[10px] tracking-[0.3em] uppercase text-gold font-ui">
+                Card No. 001
+              </p>
+              <div className="relative text-center">
+                <p className="font-display text-2xl leading-snug text-paper">
+                  {title.split(',').length > 1 ? (
+                    <>
+                      {title.split(',')[0]},<br/>
+                      {title.split(',').slice(1).join(',')}
+                    </>
+                  ) : (
+                    title
+                  )}
+                </p>
+              </div>
+              <p className="relative text-[11px] tracking-[0.2em] uppercase text-paper/70 text-center font-ui">
+                {subtitle}
               </p>
             </div>
-            <p className="relative text-[11px] tracking-[0.2em] uppercase text-paper/70 text-center font-ui">
-              Abhi &middot; A Novel
-            </p>
-          </div>
+          )}
         </div>
 
         <div className="order-2 md:order-1 pt-6 md:pt-16">
