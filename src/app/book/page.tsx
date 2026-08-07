@@ -5,6 +5,7 @@ import Footer from "@/components/Footer";
 import IkatDivider from "@/components/IkatDivider";
 import BuySection from "./BuySection";
 import type { Metadata } from "next";
+import { getPageContent } from "@/lib/data";
 
 export const metadata: Metadata = {
   title: "Two States, One Heart",
@@ -32,11 +33,19 @@ const reviews = [
   },
 ];
 
-export default function BookPage() {
+export default async function BookPage() {
+  const content = await getPageContent("book");
+  
+  const title = content?.title || "Two States, One Heart";
+  const subtitle = content?.subtitle || "A Novel";
+  const synopsis = content?.synopsis || "Two families, two languages, two ways of loving — and the couple caught in between, trying to weave something that honors both.";
+  const buyLink = content?.buy_link || "#buy";
+  const sampleLink = content?.sample_link || "#sample";
+
   return (
     <>
-      <Nav activePage="book" cta={{ label: "Buy the Book", href: "#buy" }} />
-      <BookHero />
+      <Nav activePage="book" cta={{ label: "Buy the Book", href: buyLink }} />
+      <BookHero title={title} subtitle={subtitle} synopsis={synopsis} buyLink={buyLink} sampleLink={sampleLink} />
       <AboutAuthor />
       <SampleChapter />
       <Reviews />
@@ -46,7 +55,7 @@ export default function BookPage() {
   );
 }
 
-function BookHero() {
+function BookHero({ title, subtitle, synopsis, buyLink, sampleLink }: { title: string, subtitle: string, synopsis: string, buyLink: string, sampleLink: string }) {
   return (
     <section className="max-w-6xl mx-auto px-6 md:px-10 pt-16 md:pt-20 pb-16">
       <div className="grid md:grid-cols-[auto_1fr] gap-14 md:gap-20 items-center">
@@ -72,36 +81,39 @@ function BookHero() {
           </div>
         </div>
 
-        <div>
+        <div className="order-2 md:order-1 pt-6 md:pt-16">
           <p className="text-[11px] tracking-[0.24em] uppercase text-indigo mb-5 font-ui">
-            The Book &middot; Fiction
+            The Debut Novel
           </p>
-          <h1 className="font-display text-ink leading-[0.98] text-[44px] sm:text-[56px] md:text-[64px] mb-6">
-            Two States,
-            <br />
-            <span className="italic text-marigold-text">One Heart</span>
+          <h1 className="font-display text-ink leading-tight text-[44px] sm:text-[56px] md:text-[64px] mb-4">
+            {title.split(',').length > 1 ? (
+              <>
+                {title.split(',')[0]},
+                <br />
+                <span className="italic text-marigold-text">{title.split(',').slice(1).join(',')}</span>
+              </>
+            ) : (
+              <span className="italic text-marigold-text">{title}</span>
+            )}
           </h1>
-          <p className="text-[15.5px] text-ink-soft leading-relaxed max-w-lg font-body mb-8">
-            When Meera brings home a man from a state her family has never set
-            foot in, love is the easy part. What follows is a quiet negotiation
-            between two languages, two kitchens, two ideas of what a wedding —
-            and a life — should look like. A novel about the distance between
-            two states, and the smaller distances inside one family learning to
-            close it.
+          <p className="font-ui text-ink-muted tracking-[0.2em] uppercase text-[12px] mb-8">
+            {subtitle}
           </p>
-
+          <p className="text-[15.5px] leading-relaxed text-ink-soft font-body max-w-lg mb-10">
+            {synopsis}
+          </p>
           <div className="flex flex-wrap gap-4">
             <Link
-              href="#buy"
-              className="inline-flex items-center gap-2 bg-ink text-paper text-[11px] tracking-[0.18em] uppercase px-7 py-4 hover:bg-indigo transition-colors font-ui"
+              href={buyLink}
+              className="bg-indigo text-paper text-[11px] tracking-[0.18em] uppercase px-7 py-4 hover:bg-ink transition-colors font-ui"
             >
-              <ShoppingBag size={14} /> Buy the Book
+              Order Now
             </Link>
             <Link
-              href="#sample"
-              className="inline-flex items-center gap-2 border border-ink text-ink text-[11px] tracking-[0.18em] uppercase px-7 py-4 hover:bg-ink hover:text-paper transition-colors font-ui"
+              href={sampleLink}
+              className="border border-border text-ink-muted text-[11px] tracking-[0.18em] uppercase px-7 py-4 inline-flex items-center gap-2 hover:bg-paper-card hover:text-ink transition-colors font-ui"
             >
-              <BookOpen size={14} /> Read a Sample
+              <BookOpen size={14} /> Read Excerpt
             </Link>
           </div>
         </div>

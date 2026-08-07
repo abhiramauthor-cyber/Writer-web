@@ -2,6 +2,7 @@
 
 import { createClient } from "@/lib/supabase/server";
 import { revalidatePath } from "next/cache";
+import { z } from "zod";
 
 // Helper to check admin
 async function requireAdmin() {
@@ -12,6 +13,12 @@ async function requireAdmin() {
   }
   return supabase;
 }
+
+const SocialLinksSchema = z.object({
+  instagram: z.object({ url: z.string().url().optional().or(z.literal("")), handle: z.string().optional().or(z.literal("")) }).optional(),
+  twitter: z.object({ url: z.string().url().optional().or(z.literal("")), handle: z.string().optional().or(z.literal("")) }).optional(),
+  email: z.string().email().optional().or(z.literal("")),
+});
 
 // -- Site Settings --
 export async function updateSiteSettings(isMaintenanceMode: boolean) {
@@ -26,18 +33,80 @@ export async function updateSiteSettings(isMaintenanceMode: boolean) {
   revalidatePath("/", "layout");
 }
 
-// -- Page Content --
-export async function updatePageContent(slug: string, content: any) {
+export async function updateSocialLinks(links: any) {
   const supabase = await requireAdmin();
+  
+  const parsed = SocialLinksSchema.parse(links);
+  
+  const { error } = await supabase
+    .from("site_settings")
+    .update({ social_links: parsed as any, updated_at: new Date().toISOString() })
+    .eq("id", 1);
+    
+  if (error) throw new Error(error.message);
+  revalidatePath("/", "layout");
+}
+
+// -- Page Content --
+const JourneyItemSchema = z.object({
+  year: z.string(),
+  title: z.string(),
+  body: z.string(),
+  sort_order: z.number(),
+});
+
+const AboutContentSchema = z.object({
+  bio: z.string().optional(),
+  journey: z.array(JourneyItemSchema).optional(),
+});
+
+const BookContentSchema = z.object({
+  title: z.string(),
+  subtitle: z.string(),
+  synopsis: z.string(),
+  buy_link: z.string(),
+  sample_link: z.string(),
+});
+
+export async function updateAboutContent(content: any) {
+  const supabase = await requireAdmin();
+  const parsed = AboutContentSchema.parse(content);
   
   const { error } = await supabase
     .from("page_content")
-    .update({ content, updated_at: new Date().toISOString() })
-    .eq("slug", slug);
+    .update({ content: parsed as any, updated_at: new Date().toISOString() })
+    .eq("slug", 'about');
     
   if (error) throw new Error(error.message);
-  revalidatePath(`/${slug === 'home' ? '' : slug}`);
+  revalidatePath("/about");
 }
+
+export async function updateBookContent(content: any) {
+  const supabase = await requireAdmin();
+  const parsed = BookContentSchema.parse(content);
+  
+  const { error } = await supabase
+    .from("page_content")
+    .update({ content: parsed as any, updated_at: new Date().toISOString() })
+    .eq("slug", 'book');
+    
+  if (error) throw new Error(error.message);
+  revalidatePath("/");
+  revalidatePath("/book");
+}
+
+// Keep the old updatePageContent for home (hero) for backward compatibility in this transition, or delete it and make a specific one.
+export async function updateHomeContent(content: any) {
+  const supabase = await requireAdmin();
+  const { error } = await supabase
+    .from("page_content")
+    .update({ content, updated_at: new Date().toISOString() })
+    .eq("slug", 'home');
+    
+  if (error) throw new Error(error.message);
+  revalidatePath("/");
+}
+
 
 // -- Comments --
 export async function updateCommentStatus(id: string, status: 'approved' | 'rejected') {
@@ -50,7 +119,6 @@ export async function updateCommentStatus(id: string, status: 'approved' | 'reje
     
   if (error) throw new Error(error.message);
   revalidatePath("/admin/comments");
-  // Also ideally revalidate the specific story page, but we don't have the slug here easily without fetching it.
   revalidatePath("/stories/[slug]", "page");
 }
 
@@ -71,7 +139,6 @@ export async function deleteComment(id: string) {
 export async function saveStory(story: any) {
   const supabase = await requireAdmin();
   
-  // If it's a new story (no id), insert it
   if (!story.id) {
     const { error } = await supabase
       .from("stories")
@@ -88,7 +155,6 @@ export async function saveStory(story: any) {
       });
     if (error) throw new Error(error.message);
   } else {
-    // Update existing
     const { error } = await supabase
       .from("stories")
       .update({
@@ -100,7 +166,6 @@ export async function saveStory(story: any) {
         read_time_minutes: parseInt(story.read_time_minutes),
         body_mdx: story.body_mdx,
         is_published: story.is_published,
-        // Only update published_at if it's transitioning to published for the first time? For simplicity we just use now() if newly published, or keep old.
       })
       .eq("id", story.id);
     if (error) throw new Error(error.message);

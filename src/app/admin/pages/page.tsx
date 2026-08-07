@@ -2,8 +2,8 @@ import { getPageContent } from "@/lib/data";
 import PagesClient from "./PagesClient";
 
 export default async function PagesServer() {
-  const homeContent = await getPageContent("home");
   const aboutContent = await getPageContent("about");
+  const bookContent = await getPageContent("book");
 
-  return <PagesClient homeContent={homeContent} aboutContent={aboutContent} />;
+  return <PagesClient aboutContent={aboutContent || {}} bookContent={bookContent || {}} />;
 }

@@ -22,17 +22,19 @@ export const metadata: Metadata = {
   description: "Writer Lokam is a digital library catalog of original short fiction by Abhi. A reading room of stories about love, memory, hope, and longing.",
 };
 
-export default async function HomePage() {
+export default async function Home() {
   const allStories = await getAllStories();
   const stories = allStories.slice(0, 3); // Get latest 3 stories
   const homeContent = await getPageContent("home");
+  const bookContent = await getPageContent("book");
 
   return (
     <>
       <Nav cta={{ label: "Read Stories", href: "/stories" }} />
       <Hero content={homeContent} />
       <Stories stories={stories} />
-      <BookShowcase />
+      <IkatDivider tone="indigo" />
+      <BookShowcase content={bookContent} />
       <Newsletter />
       <Footer />
     </>
@@ -124,14 +126,38 @@ function Stories({ stories }: { stories: StoryData[] }) {
 }
 
 /* ─── Book Showcase ─── */
-function BookShowcase() {
+function BookShowcase({ content }: { content: any }) {
+  const title = content?.title || "Two States, One Heart";
+  const subtitle = content?.subtitle || "Abhi · A Novel";
+  const synopsis = content?.synopsis || "Two families, two languages, two ways of loving — and the couple caught in between, trying to weave something that honors both. A story about the quiet negotiations that hold a family together.";
+  const buyLink = content?.buy_link || "/book";
+
   return (
     <section className="bg-paper-card border-y border-border">
-      <div className="max-w-6xl mx-auto px-6 md:px-10 py-20 md:py-28">
-        <IkatDivider tone="marigold" />
-        <div className="grid md:grid-cols-2 gap-14 md:gap-20 items-center mt-16">
+      <div className="max-w-6xl mx-auto px-6 md:px-10 py-20 md:py-32">
+        <div className="grid md:grid-cols-2 gap-12 md:gap-20 items-center">
           <div className="order-2 md:order-1">
-            <div className="relative w-56 md:w-72 mx-auto aspect-[2/3] bg-indigo p-7 flex flex-col justify-between">
+            <div className="inline-block px-3 py-1 bg-indigo/10 text-indigo font-ui text-[11px] tracking-widest uppercase mb-6">
+              The Debut Novel
+            </div>
+            <h2 className="font-display text-4xl md:text-5xl text-ink mb-4">
+              {title}
+            </h2>
+            <p className="font-ui text-ink-muted tracking-[0.2em] uppercase text-[12px] mb-8">
+              {subtitle}
+            </p>
+            <p className="text-[15.5px] leading-relaxed text-ink-soft font-body mb-8">
+              {synopsis}
+            </p>
+            <Link
+              href={buyLink}
+              className="inline-flex items-center gap-3 bg-indigo text-paper px-8 py-4 font-ui text-[12px] tracking-widest uppercase hover:bg-ink transition-colors"
+            >
+              Order Now <ArrowRight size={16} />
+            </Link>
+          </div>
+          <div className="order-1 md:order-2 flex justify-center">
+            <div className="relative w-56 md:w-72 aspect-[2/3] bg-indigo p-7 flex flex-col justify-between">
               <div
                 className="absolute inset-3 border border-dashed border-marigold/50"
                 aria-hidden="true"
@@ -149,36 +175,6 @@ function BookShowcase() {
               <p className="relative text-[11px] tracking-[0.2em] uppercase text-paper/70 text-center font-ui">
                 Abhi &middot; A Novel
               </p>
-            </div>
-          </div>
-
-          <div className="order-1 md:order-2">
-            <p className="text-[11px] tracking-[0.24em] uppercase text-marigold-text mb-5 font-ui">
-              The Book
-            </p>
-            <h2 className="font-display text-4xl md:text-5xl text-ink leading-tight mb-6">
-              Two States,
-              <br />
-              <span className="italic text-indigo">One Heart</span>
-            </h2>
-            <p className="text-[15px] text-nav-muted leading-relaxed mb-8 max-w-md font-body">
-              Two families, two languages, two ways of loving — and the couple
-              caught in between, trying to weave something that honors both. A
-              story about the quiet negotiations that hold a family together.
-            </p>
-            <div className="flex flex-wrap gap-4">
-              <Link
-                href="/book"
-                className="bg-ink text-paper text-[11px] tracking-[0.18em] uppercase px-7 py-4 hover:bg-indigo transition-colors font-ui"
-              >
-                Buy the Book
-              </Link>
-              <Link
-                href="/book#sample"
-                className="border border-ink text-ink text-[11px] tracking-[0.18em] uppercase px-7 py-4 inline-flex items-center gap-2 hover:bg-ink hover:text-paper transition-colors font-ui"
-              >
-                <BookOpen size={14} /> Sample Chapter
-              </Link>
             </div>
           </div>
         </div>

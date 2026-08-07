@@ -1,6 +1,12 @@
 import Link from "next/link";
 
-export default function Footer() {
+import { createClient } from "@/lib/supabase/server";
+
+export default async function Footer() {
+  const supabase = await createClient();
+  const { data: settings } = await supabase.from('site_settings').select('social_links').eq('id', 1).single();
+  const socials = settings?.social_links || {};
+
   return (
     <footer className="bg-paper">
       <div className="max-w-6xl mx-auto px-6 md:px-10 py-14 flex flex-col md:flex-row justify-between gap-8">
@@ -42,19 +48,32 @@ export default function Footer() {
             </p>
             <ul className="space-y-2 text-[13px] text-ink-soft font-ui">
               <li>
-                <a href="#" className="hover:text-ink">
+                <a
+                  href={socials?.instagram?.url || "https://instagram.com"}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="hover:text-ink transition-colors"
+                >
                   Instagram
                 </a>
               </li>
               <li>
-                <a href="#" className="hover:text-ink">
+                <a
+                  href={socials?.twitter?.url || "https://twitter.com"}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="hover:text-ink transition-colors"
+                >
                   Twitter / X
                 </a>
               </li>
               <li>
-                <Link href="/about#contact" className="hover:text-ink">
+                <a
+                  href={socials?.email ? `mailto:${socials.email}` : "#"}
+                  className="hover:text-ink transition-colors"
+                >
                   Contact
-                </Link>
+                </a>
               </li>
             </ul>
           </div>

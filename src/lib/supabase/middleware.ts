@@ -32,11 +32,14 @@ export async function updateSession(request: NextRequest) {
 
   // Protect /admin route
   if (request.nextUrl.pathname.startsWith('/admin')) {
+    console.log("Admin Route Accessed. Current User:", user?.email);
     if (!user || user.email !== 'abhiramssk@gmail.com') {
+      console.log("Access Denied. Redirecting to /");
       const url = request.nextUrl.clone();
       url.pathname = '/';
       return NextResponse.redirect(url);
     }
+    console.log("Access Granted to Admin!");
   }
 
   // Check Maintenance Mode (using public anon key)

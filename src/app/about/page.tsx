@@ -1,46 +1,55 @@
 import { ArrowRight, Mail } from "lucide-react";
+import Image from "next/image";
 import Link from "next/link";
-import { getPageContent } from "@/lib/data";
 import Nav from "@/components/Nav";
 import Footer from "@/components/Footer";
+import { getPageContent } from "@/lib/data";
+import { createClient } from "@/lib/supabase/server";
 import IkatDivider from "@/components/IkatDivider";
 import ContactForm from "@/components/ContactForm";
 
-const journey = [
-  {
-    year: "2022",
-    title: "First story, written for no one",
-    body: "Started writing short fiction in Telugu and English, mostly about the families around me.",
-  },
-  {
-    year: "2024",
-    title: "Two States, One Heart begins",
-    body: "What started as a single scene overheard at a wedding grew into a full manuscript.",
-  },
-  {
-    year: "2025",
-    title: "The reading room opens",
-    body: "Writer Lokam started as a place to publish short stories alongside the novel.",
-  },
-  {
-    year: "2026",
-    title: "Two States, One Heart is published",
-    body: "The novel finds its way into readers' hands, in print and as an ebook.",
-  },
-];
-
 export default async function AboutPage() {
-  const aboutContent = await getPageContent("about");
+  const content = await getPageContent("about");
+  const supabase = await createClient();
+  const { data: settings } = await supabase.from('site_settings').select('social_links').eq('id', 1).single();
+  
+  const bio = content?.bio || "Biography goes here.";
+  const journey = content?.journey || [];
+  const socials = settings?.social_links || {};
 
   return (
     <>
       <Nav activePage="about" cta={{ label: "Get in Touch", href: "#contact" }} />
       <AboutHero />
-      <Biography content={aboutContent} />
-      <IkatDivider tone="indigo" />
-      <Journey />
-      <Achievements content={aboutContent} />
-      <SocialLinks />
+      <Biography content={content} />
+      {journey.length > 0 && (
+        <section className="bg-paper-card border-y border-border">
+          <div className="max-w-6xl mx-auto px-6 md:px-10 py-16 md:py-24">
+            <h2 className="font-display text-3xl md:text-4xl text-ink mb-16 text-center">
+              The Journey
+            </h2>
+            <div className="max-w-3xl mx-auto space-y-12">
+              {journey.map((step: any, index: number) => (
+                <div key={index} className="flex flex-col md:flex-row gap-4 md:gap-10">
+                  <div className="md:w-32 flex-shrink-0 font-ui text-[13px] tracking-widest text-indigo uppercase pt-1">
+                    {step.year}
+                  </div>
+                  <div>
+                    <h3 className="font-display text-xl text-ink mb-2">
+                      {step.title}
+                    </h3>
+                    <p className="text-ink-soft font-body leading-relaxed text-[15px]">
+                      {step.body}
+                    </p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
+      <Achievements content={content} />
+      <SocialLinks socials={socials} />
       <ContactForm />
       <Footer />
     </>
@@ -91,38 +100,6 @@ function Biography({ content }: { content: any }) {
         <div className="max-w-2xl space-y-5 text-[15px] text-ink-soft leading-relaxed font-body whitespace-pre-wrap">
           <p>{bioText}</p>
         </div>
-      </div>
-    </section>
-  );
-}
-
-function Journey() {
-  return (
-    <section className="max-w-6xl mx-auto px-6 md:px-10 py-20 md:py-24">
-      <p className="text-[11px] tracking-[0.24em] uppercase text-indigo mb-4 font-ui">
-        The Writing Journey
-      </p>
-      <h2 className="font-display text-3xl md:text-4xl text-ink mb-12">
-        How this came to be
-      </h2>
-
-      <div className="grid sm:grid-cols-2 gap-6">
-        {journey.map((j, i) => (
-          <div key={i} className="bg-paper-card border border-border p-7">
-            <div className="flex items-center justify-between mb-4">
-              <span className="font-display italic text-2xl text-marigold-text">
-                {j.year}
-              </span>
-              <span className="font-ui text-[11px] tracking-wider text-ink-muted">
-                Card No. {String(i + 2).padStart(3, "0")}
-              </span>
-            </div>
-            <h3 className="font-display text-xl text-ink mb-2">{j.title}</h3>
-            <p className="text-[14px] text-ink-soft leading-relaxed font-body">
-              {j.body}
-            </p>
-          </div>
-        ))}
       </div>
     </section>
   );
@@ -179,12 +156,7 @@ function Twitter({ size, className }: { size: number; className?: string }) {
   );
 }
 
-function SocialLinks() {
-  const links = [
-    { icon: Instagram, label: "Instagram", handle: "@writerlokam" },
-    { icon: Twitter, label: "Twitter / X", handle: "@writerlokam" },
-    { icon: Mail, label: "Email", handle: "hello@writerlokam.com" },
-  ];
+function SocialLinks({ socials }: { socials: any }) {
   return (
     <section className="bg-paper-card border-y border-border">
       <div className="max-w-6xl mx-auto px-6 md:px-10 py-16 md:py-20">
@@ -194,24 +166,58 @@ function SocialLinks() {
         <h2 className="font-display text-3xl md:text-4xl text-ink mb-10">
           Stay connected
         </h2>
-        <div className="grid sm:grid-cols-3 gap-6">
-          {links.map(({ icon: Icon, label, handle }) => (
-            <Link
-              key={label}
-              href="#"
-              className="group flex items-center gap-4 border border-border p-6 hover:border-ink/40 transition-colors"
+        <div className="max-w-md mx-auto grid grid-cols-2 md:grid-cols-3 gap-6">
+          {/* Instagram */}
+          {socials?.instagram?.handle && (
+            <a
+              href={socials.instagram.url || "https://instagram.com"}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex flex-col items-center justify-center p-6 border border-border bg-paper hover:bg-paper-card transition-colors group"
             >
-              <Icon size={20} className="text-indigo shrink-0" />
-              <div>
-                <p className="text-[13px] text-ink font-ui">{label}</p>
-                <p className="text-[12px] text-ink-muted font-ui">{handle}</p>
-              </div>
-              <ArrowRight
-                size={14}
-                className="ml-auto text-ink-muted group-hover:text-ink transition-colors"
-              />
-            </Link>
-          ))}
+              <Instagram size={24} className="text-ink-muted group-hover:text-indigo transition-colors mb-3" />
+              <span className="font-ui text-[11px] tracking-widest uppercase text-ink-muted group-hover:text-ink transition-colors">
+                Instagram
+              </span>
+              <span className="font-body text-[12px] text-ink-soft mt-1 text-center">
+                {socials.instagram.handle}
+              </span>
+            </a>
+          )}
+          
+          {/* Twitter / X */}
+          {socials?.twitter?.handle && (
+            <a
+              href={socials.twitter.url || "https://twitter.com"}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex flex-col items-center justify-center p-6 border border-border bg-paper hover:bg-paper-card transition-colors group"
+            >
+              <Twitter size={24} className="text-ink-muted group-hover:text-indigo transition-colors mb-3" />
+              <span className="font-ui text-[11px] tracking-widest uppercase text-ink-muted group-hover:text-ink transition-colors">
+                Twitter / X
+              </span>
+              <span className="font-body text-[12px] text-ink-soft mt-1 text-center">
+                {socials.twitter.handle}
+              </span>
+            </a>
+          )}
+
+          {/* Email */}
+          {socials?.email && (
+            <a
+              href={`mailto:${socials.email}`}
+              className="flex flex-col items-center justify-center p-6 border border-border bg-paper hover:bg-paper-card transition-colors group"
+            >
+              <Mail size={24} className="text-ink-muted group-hover:text-indigo transition-colors mb-3" />
+              <span className="font-ui text-[11px] tracking-widest uppercase text-ink-muted group-hover:text-ink transition-colors">
+                Email
+              </span>
+              <span className="font-body text-[12px] text-ink-soft mt-1 text-center">
+                Say Hello
+              </span>
+            </a>
+          )}
         </div>
       </div>
     </section>
