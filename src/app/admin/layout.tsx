@@ -1,6 +1,7 @@
 import Link from "next/link";
+import { SignOutButton } from "@clerk/nextjs";
 import { LogOut, Home, FileText, Settings, MessageSquare, LayoutDashboard } from "lucide-react";
-import { createClient } from "@/lib/supabase/server";
+import { currentUser } from "@clerk/nextjs/server";
 
 export const metadata = {
   title: "Admin Dashboard",
@@ -11,8 +12,7 @@ export default async function AdminLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const user = await currentUser();
 
   return (
     <div className="min-h-screen flex bg-paper-card">
@@ -23,7 +23,7 @@ export default async function AdminLayout({
             Writer <span className="italic text-marigold">Admin</span>
           </Link>
           <p className="text-[11px] font-ui tracking-wider text-ink-muted mt-1 uppercase">
-            {user?.email}
+            {user?.primaryEmailAddress?.emailAddress}
           </p>
         </div>
 
@@ -61,11 +61,11 @@ export default async function AdminLayout({
           <Link href="/" className="flex items-center gap-3 px-3 py-3 text-ink-muted hover:text-ink transition-colors">
             <Home size={16} /> View Site
           </Link>
-          <form action="/auth/signout" method="post">
-            <button type="submit" className="flex items-center gap-3 px-3 py-3 text-red-600 hover:text-red-700 transition-colors w-full text-left">
+          <SignOutButton>
+            <button className="flex items-center gap-3 px-3 py-3 text-red-600 hover:text-red-700 transition-colors w-full text-left">
               <LogOut size={16} /> Sign Out
             </button>
-          </form>
+          </SignOutButton>
         </div>
       </aside>
 

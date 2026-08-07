@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { Menu, X } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useAuth, UserButton, SignInButton } from "@clerk/nextjs";
 
 interface NavCta {
   label: string;
@@ -19,6 +20,7 @@ interface NavProps {
   variant?: "default" | "reading";
   user?: any;
   siteName?: string;
+  isAdmin?: boolean;
 }
 
 const navLinks = [
@@ -34,10 +36,12 @@ export default function NavClient({
   variant = "default",
   user,
   siteName = "Writer Lokam",
+  isAdmin = false,
 }: NavProps) {
   const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const pathname = usePathname();
+  const { isLoaded, userId } = useAuth();
 
   const nameParts = siteName.split(" ");
   const firstPart = nameParts[0];
@@ -112,22 +116,22 @@ export default function NavClient({
               {link.label}
             </Link>
           ))}
-          {user ? (
-            <form action="/auth/signout" method="post">
-              <button
-                type="submit"
-                className="text-[11px] tracking-[0.18em] uppercase font-ui text-nav-muted hover:text-rust transition-colors"
-              >
-                Sign Out
-              </button>
-            </form>
-          ) : (
+          {isAdmin && (
             <Link
-              href="/login"
-              className="text-[11px] tracking-[0.18em] uppercase font-ui text-indigo hover:text-ink transition-colors"
+              href="/admin"
+              className="text-[11px] tracking-[0.18em] uppercase font-ui text-marigold hover:text-ink transition-colors"
             >
-              Sign In
+              Admin
             </Link>
+          )}
+          {isLoaded && userId ? (
+            <UserButton />
+          ) : (
+            <SignInButton mode="modal">
+              <button className="text-[11px] tracking-[0.18em] uppercase font-ui text-indigo hover:text-ink transition-colors">
+                Sign In
+              </button>
+            </SignInButton>
           )}
         </nav>
 
@@ -159,6 +163,15 @@ export default function NavClient({
               {link.label}
             </Link>
           ))}
+          {isAdmin && (
+            <Link
+              href="/admin"
+              onClick={() => setOpen(false)}
+              className="text-sm uppercase tracking-wider text-marigold font-ui"
+            >
+              Admin
+            </Link>
+          )}
           <Link
             href={cta.href}
             onClick={() => setOpen(false)}

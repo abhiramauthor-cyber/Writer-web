@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
+import { currentUser } from "@clerk/nextjs/server";
 import NavClient from "./NavClient";
 
 interface NavCta {
@@ -17,8 +18,9 @@ interface NavProps {
 
 export default async function Nav(props: NavProps) {
   const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
   const { data: settings } = await supabase.from('site_settings').select('site_name').eq('id', 1).single();
+  const user = await currentUser();
+  const isAdmin = user?.primaryEmailAddress?.emailAddress === "abhiramssk@gmail.com";
 
-  return <NavClient {...props} user={user} siteName={settings?.site_name || "Writer Lokam"} />;
+  return <NavClient {...props} siteName={settings?.site_name || "Writer Lokam"} isAdmin={isAdmin} />;
 }

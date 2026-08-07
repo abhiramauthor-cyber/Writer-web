@@ -4,14 +4,16 @@ import { createClient } from "@/lib/supabase/server";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 
+import { currentUser } from "@clerk/nextjs/server";
+
 // Helper to check admin
 async function requireAdmin() {
-  const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user || user.email !== 'abhiramssk@gmail.com') {
+  const user = await currentUser();
+  const primaryEmail = user?.primaryEmailAddress?.emailAddress;
+  if (!user || primaryEmail !== 'abhiramssk@gmail.com') {
     throw new Error("Unauthorized");
   }
-  return supabase;
+  return await createClient();
 }
 
 const SettingsSchema = z.object({

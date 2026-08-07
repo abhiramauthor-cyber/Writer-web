@@ -11,6 +11,7 @@ import Comments, { type CommentData } from "@/components/Comments";
 import { getStoryBySlug, getAllStories } from "@/lib/data";
 import type { StoryData } from "@/components/StoryCard";
 import { createClient } from "@/lib/supabase/server";
+import { auth } from "@clerk/nextjs/server";
 
 const threadTextColorMap: Record<string, string> = {
   indigo: "var(--color-indigo)",
@@ -63,7 +64,7 @@ export default async function StoryPage({ params }: { params: Promise<{ slug: st
 
   // Supabase data fetching
   const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const { userId: clerkUserId } = await auth();
   
   // 1. Get story UUID from Supabase
   const { data: dbStory } = await supabase
@@ -77,10 +78,10 @@ export default async function StoryPage({ params }: { params: Promise<{ slug: st
   // 2. Get initial user state for EngagementBar
   let initialLiked = false;
   let initialSaved = false;
-  if (user && storyId) {
+  if (clerkUserId && storyId) {
     const [likeRes, bookmarkRes] = await Promise.all([
-      supabase.from("likes").select("*").eq("user_id", user.id).eq("story_id", storyId).single(),
-      supabase.from("bookmarks").select("*").eq("user_id", user.id).eq("story_id", storyId).single()
+      supabase.from("likes").select("*").eq("user_id", clerkUserId).eq("story_id", storyId).single(),
+      supabase.from("bookmarks").select("*").eq("user_id", clerkUserId).eq("story_id", storyId).single()
     ]);
     initialLiked = !!likeRes.data;
     initialSaved = !!bookmarkRes.data;
@@ -98,7 +99,7 @@ export default async function StoryPage({ params }: { params: Promise<{ slug: st
     const { data: dbComments } = await query;
     if (dbComments) {
       initialComments = dbComments
-        .filter(c => c.status === 'approved' || (user && c.user_id === user.id))
+        .filter(c => c.status === 'approved' || (clerkUserId && c.user_id === clerkUserId))
         .map(c => {
           const profile = Array.isArray(c.profiles) ? c.profiles[0] : c.profiles;
           return {

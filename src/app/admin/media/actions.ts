@@ -1,6 +1,7 @@
 "use server";
 
 import { createClient } from "@/lib/supabase/server";
+import { auth } from "@clerk/nextjs/server";
 import { revalidatePath } from "next/cache";
 
 /**
@@ -9,8 +10,8 @@ import { revalidatePath } from "next/cache";
  */
 export async function uploadImage(formData: FormData, oldImageUrl?: string | null) {
   const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) throw new Error("Unauthorized");
+  const { userId } = await auth();
+  if (!userId) throw new Error("Unauthorized");
 
   const file = formData.get("file") as File;
   if (!file) throw new Error("No file provided");
@@ -45,8 +46,8 @@ export async function uploadImage(formData: FormData, oldImageUrl?: string | nul
 
 export async function deleteImage(imageUrl: string) {
   const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) throw new Error("Unauthorized");
+  const { userId } = await auth();
+  if (!userId) throw new Error("Unauthorized");
 
   if (imageUrl.includes("/storage/v1/object/public/public_assets/")) {
     const oldPath = imageUrl.split("/storage/v1/object/public/public_assets/").pop();

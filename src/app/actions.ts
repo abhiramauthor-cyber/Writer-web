@@ -1,21 +1,22 @@
 "use server";
 
 import { createClient } from "@/lib/supabase/server";
+import { auth } from "@clerk/nextjs/server";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 
 export async function toggleLike(storyId: string, currentStatus: boolean, path: string) {
   const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const { userId } = await auth();
 
-  if (!user) {
+  if (!userId) {
     throw new Error("You must be logged in to like a story.");
   }
 
   if (currentStatus) {
-    await supabase.from("likes").delete().eq("user_id", user.id).eq("story_id", storyId);
+    await supabase.from("likes").delete().eq("user_id", userId).eq("story_id", storyId);
   } else {
-    await supabase.from("likes").insert({ user_id: user.id, story_id: storyId });
+    await supabase.from("likes").insert({ user_id: userId, story_id: storyId });
   }
 
   revalidatePath(path);
@@ -23,16 +24,16 @@ export async function toggleLike(storyId: string, currentStatus: boolean, path: 
 
 export async function toggleBookmark(storyId: string, currentStatus: boolean, path: string) {
   const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const { userId } = await auth();
 
-  if (!user) {
+  if (!userId) {
     throw new Error("You must be logged in to save a story.");
   }
 
   if (currentStatus) {
-    await supabase.from("bookmarks").delete().eq("user_id", user.id).eq("story_id", storyId);
+    await supabase.from("bookmarks").delete().eq("user_id", userId).eq("story_id", storyId);
   } else {
-    await supabase.from("bookmarks").insert({ user_id: user.id, story_id: storyId });
+    await supabase.from("bookmarks").insert({ user_id: userId, story_id: storyId });
   }
 
   revalidatePath(path);
@@ -47,15 +48,15 @@ export async function postComment(storyId: string, body: string, path: string) {
   }
 
   const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const { userId } = await auth();
 
-  if (!user) {
+  if (!userId) {
     throw new Error("You must be logged in to comment.");
   }
 
   const { error } = await supabase.from("comments").insert({
     story_id: storyId,
-    user_id: user.id,
+    user_id: userId,
     body: body,
     status: "pending"
   });
