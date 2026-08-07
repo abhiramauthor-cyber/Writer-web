@@ -1,26 +1,45 @@
 @import "tailwindcss";
+@plugin "@tailwindcss/typography";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
+/*
+ * Writer Lokam — Design System Tokens
+ * "The Reading Room" — paper/ink/indigo/marigold palette
+ * with Pochampalli ikat textile motif references.
+ *
+ * All tokens defined here (Tailwind v4 CSS-first config).
+ * No tailwind.config.ts exists — this is the single source of truth.
+ */
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
+  /* ── Palette ── */
+  --color-paper: #F7F4ED;
+  --color-paper-card: #FBF9F4;
+  --color-ink: #221F1A;
+  --color-ink-soft: #3F3A30;
+  --color-ink-muted: #6B6452;
+  --color-border: #D8D2C2;
+  --color-indigo: #2F4468;
+  --color-marigold: #D97E3D;
+  --color-marigold-text: #A85A24;
+  --color-rust: #A64B2A;
+  --color-rust-text: #8A3D22;
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  /* Extended palette — colors used in designs but not in handoff's named list */
+  --color-gold: #EEB877;
+  --color-indigo-border: #5A6E93;
+  --color-indigo-muted: #9AA9C4;
+  --color-indigo-body: #C7CEDB;
+  --color-indigo-light: #E7EAF1;
+  --color-placeholder: #9C9584;
+  --color-nav-muted: #5C574A;
+  --color-marigold-hover: #E5964F;
+
+  /* ── Typography ── */
+  --font-display: var(--font-display);
+  --font-body: var(--font-body);
+  --font-ui: var(--font-ui);
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-ui), sans-serif;
 }
