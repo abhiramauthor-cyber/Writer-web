@@ -33,7 +33,7 @@ export default function BuySection({ buyLinks }: { buyLinks: any[] }) {
                   : 'border border-ink text-ink hover:bg-ink hover:text-paper'
               }`}
             >
-              {link.type === 'primary' ? <ShoppingBag size={14} /> : <ExternalLink size={14} />}
+              <ExternalLink size={14} />
               {link.label}
             </Link>
           ))}
