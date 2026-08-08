@@ -10,7 +10,7 @@ import { currentUser } from "@clerk/nextjs/server";
 async function requireAdmin() {
   const user = await currentUser();
   const primaryEmail = user?.primaryEmailAddress?.emailAddress;
-  if (!user || primaryEmail !== 'abhiramssk@gmail.com') {
+  if (!user || primaryEmail?.toLowerCase() !== 'abhiramssk@gmail.com') {
     throw new Error("Unauthorized");
   }
   return await createClient();
@@ -18,16 +18,17 @@ async function requireAdmin() {
 
 const SettingsSchema = z.object({
   site_name: z.string(),
-  tagline: z.string(),
-  footer_blurb: z.string(),
-  meta_description: z.string(),
-  og_image_url: z.string().url().optional().or(z.literal("")),
-  newsletter_heading: z.string(),
-  newsletter_body: z.string(),
-  social_instagram_url: z.string().url().optional().or(z.literal("")),
-  social_twitter_url: z.string().url().optional().or(z.literal("")),
-  social_email: z.string().email().optional().or(z.literal("")),
-  stamp_est_year: z.string(),
+  tagline: z.string().optional().nullable(),
+  footer_blurb: z.string().optional().nullable(),
+  meta_description: z.string().optional().nullable(),
+  og_image_url: z.string().optional().nullable(),
+  newsletter_heading: z.string().optional().nullable(),
+  newsletter_body: z.string().optional().nullable(),
+  social_instagram_url: z.string().optional().nullable(),
+  social_twitter_url: z.string().optional().nullable(),
+  social_email: z.string().optional().nullable(),
+  stamp_est_year: z.string().optional().nullable(),
+  is_maintenance_mode: z.boolean().optional(),
 });
 
 export async function updateSiteSettings(settings: any) {
@@ -45,7 +46,7 @@ export async function updateSiteSettings(settings: any) {
 
 const AuthorSchema = z.object({
   name: z.string(),
-  avatar_url: z.string().url().optional().or(z.literal("")),
+  avatar_url: z.string().optional().nullable(),
   bio_paragraphs: z.array(z.string()),
 });
 
@@ -64,15 +65,15 @@ export async function updateAuthorProfile(profile: any) {
 
 const PageHeroSchema = z.object({
   slug: z.string(),
-  eyebrow: z.string().optional(),
-  heading: z.string(),
-  subheading: z.string().optional(),
-  body: z.string().optional(),
-  cta_primary_label: z.string().optional(),
-  cta_primary_href: z.string().optional(),
-  cta_secondary_label: z.string().optional(),
-  cta_secondary_href: z.string().optional(),
-  image_url: z.string().url().optional().or(z.literal("")),
+  eyebrow: z.string().optional().nullable(),
+  heading: z.string().optional().nullable(),
+  subheading: z.string().optional().nullable(),
+  body: z.string().optional().nullable(),
+  cta_primary_label: z.string().optional().nullable(),
+  cta_primary_href: z.string().optional().nullable(),
+  cta_secondary_label: z.string().optional().nullable(),
+  cta_secondary_href: z.string().optional().nullable(),
+  image_url: z.string().optional().nullable(),
 });
 
 export async function updatePageHero(hero: any) {
@@ -93,14 +94,14 @@ export async function updatePageHero(hero: any) {
 
 // -- List Actions (Book/About) --
 const BookDetailsSchema = z.object({
-  cover_image_url: z.string().url().optional().or(z.literal("")),
+  cover_image_url: z.string().optional().nullable(),
   title: z.string(),
-  tagline: z.string().optional(),
-  synopsis: z.string().optional(),
-  author_teaser: z.string().optional(),
-  sample_chapter_title: z.string().optional(),
-  sample_chapter_body: z.string().optional(),
-  sample_chapter_meta: z.string().optional(),
+  tagline: z.string().optional().nullable(),
+  synopsis: z.string().optional().nullable(),
+  author_teaser: z.string().optional().nullable(),
+  sample_chapter_title: z.string().optional().nullable(),
+  sample_chapter_body: z.string().optional().nullable(),
+  sample_chapter_meta: z.string().optional().nullable(),
 });
 
 export async function updateBookDetails(details: any) {
@@ -113,33 +114,33 @@ export async function updateBookDetails(details: any) {
 }
 
 const ReviewSchema = z.object({
-  id: z.string().optional(),
+  id: z.string().optional().nullable(),
   quote: z.string(),
-  name: z.string().optional(),
-  context: z.string().optional(),
-  sort_order: z.number(),
+  name: z.string().optional().nullable(),
+  context: z.string().optional().nullable(),
+  sort_order: z.number().default(0),
 });
 
 const BuyLinkSchema = z.object({
-  id: z.string().optional(),
+  id: z.string().optional().nullable(),
   label: z.string(),
   url: z.string(),
-  type: z.string().optional(),
-  sort_order: z.number(),
+  type: z.string().optional().nullable(),
+  sort_order: z.number().default(0),
 });
 
 const JourneyItemSchema = z.object({
-  id: z.string().optional(),
+  id: z.string().optional().nullable(),
   year: z.string(),
   title: z.string(),
-  body: z.string().optional(),
-  sort_order: z.number(),
+  body: z.string().optional().nullable(),
+  sort_order: z.number().default(0),
 });
 
 const AchievementSchema = z.object({
-  id: z.string().optional(),
+  id: z.string().optional().nullable(),
   text: z.string(),
-  sort_order: z.number(),
+  sort_order: z.number().default(0),
 });
 
 // Generic reorder logic

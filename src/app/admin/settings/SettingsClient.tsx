@@ -26,6 +26,7 @@ export default function SettingsClient({
     social_twitter_url: initialSettings?.social_twitter_url || "",
     social_email: initialSettings?.social_email || "",
     stamp_est_year: initialSettings?.stamp_est_year || "",
+    is_maintenance_mode: Boolean(initialSettings?.is_maintenance_mode),
   });
 
   const [author, setAuthor] = useState({
@@ -110,6 +111,39 @@ export default function SettingsClient({
         </div>
 
         <div className="space-y-8">
+          {/* Maintenance Mode */}
+          <div className="bg-paper-card border border-border p-6 rounded-md">
+            <div className="flex items-center justify-between">
+              <div>
+                <h3 className="font-ui text-[13px] tracking-widest uppercase text-ink font-bold flex items-center gap-2">
+                  Maintenance Mode
+                  {settings.is_maintenance_mode && (
+                    <span className="bg-rust/20 text-rust-text text-[10px] px-2 py-0.5 rounded-full font-mono">
+                      ACTIVE
+                    </span>
+                  )}
+                </h3>
+                <p className="text-xs text-ink-soft font-body mt-1">
+                  When turned on, public visitors are redirected to the <span className="font-mono text-indigo font-bold">/maintenance</span> page. You (Admin) can still access the admin dashboard.
+                </p>
+              </div>
+              <label className="relative inline-flex items-center cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={settings.is_maintenance_mode}
+                  onChange={(e) => setSettings({ ...settings, is_maintenance_mode: e.target.checked })}
+                  className="sr-only peer"
+                />
+                <div className="w-11 h-6 bg-border peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-paper after:border-border after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-rust"></div>
+                <span className="ml-3 font-ui text-[11px] tracking-widest uppercase font-bold text-ink">
+                  {settings.is_maintenance_mode ? "ON" : "OFF"}
+                </span>
+              </label>
+            </div>
+          </div>
+
+          <hr className="border-border" />
+
           {/* Brand */}
           <div className="grid md:grid-cols-2 gap-6">
             <div>
