@@ -1,4 +1,10 @@
-export default function Stamp() {
+interface StampProps {
+  estYear?: string; // e.g. "EST. 2025" or "2025"
+}
+
+export default function Stamp({ estYear }: StampProps) {
+  // Extract numeric year from settings value like "EST. 2025"
+  const year = estYear?.replace(/\D/g, '') || '2025';
   return (
     <svg
       viewBox="0 0 120 120"
@@ -50,7 +56,7 @@ export default function Stamp() {
         fontFamily="var(--font-ui), sans-serif"
         letterSpacing="1"
       >
-        2026
+        {year}
       </text>
     </svg>
   );

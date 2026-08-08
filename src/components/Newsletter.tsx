@@ -5,7 +5,14 @@ import { Send } from "lucide-react";
 import IkatDivider from "@/components/IkatDivider";
 import { subscribeToNewsletter } from "@/app/actions";
 
-export default function Newsletter() {
+interface NewsletterProps {
+  heading?: string | null;
+  body?: string | null;
+}
+
+export default function Newsletter({ heading, body }: NewsletterProps) {
+  const displayHeading = heading || "A letter, once a month";
+  const displayBody = body || "New stories, writing updates, and news about Two States, One Heart — one card added to your catalog every month, never more.";
   const [email, setEmail] = useState("");
   const [message, setMessage] = useState<{ text: string, type: "success" | "error" } | null>(null);
   const [isPending, startTransition] = useTransition();
@@ -31,11 +38,10 @@ export default function Newsletter() {
     <section className="bg-indigo">
       <div className="max-w-3xl mx-auto px-6 md:px-10 py-20 md:py-24 text-center">
         <h2 className="font-display text-3xl md:text-4xl text-paper mb-4">
-          A letter, once a month
+          {displayHeading}
         </h2>
         <p className="text-indigo-body text-[15px] mb-10 max-w-md mx-auto leading-relaxed font-body">
-          New stories, writing updates, and news about Two States, One Heart —
-          one card added to your catalog every month, never more.
+          {displayBody}
         </p>
 
         <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row gap-3 max-w-md mx-auto">

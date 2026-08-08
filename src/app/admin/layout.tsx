@@ -13,6 +13,21 @@ export default async function AdminLayout({
   children: React.ReactNode;
 }) {
   const user = await currentUser();
+  const primaryEmail = user?.primaryEmailAddress?.emailAddress?.toLowerCase();
+  
+  if (!user || primaryEmail !== 'abhiramssk@gmail.com') {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-paper-card">
+        <div className="text-center p-10">
+          <h1 className="font-display text-3xl text-ink mb-4">Access Denied</h1>
+          <p className="text-ink-soft font-body mb-6">You don&apos;t have permission to access the admin panel.</p>
+          <a href="/" className="bg-indigo text-paper px-6 py-3 font-ui text-[11px] tracking-widest uppercase hover:bg-ink transition-colors">
+            Go to Homepage
+          </a>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen flex bg-paper-card">

@@ -84,7 +84,11 @@ export default function StoryEditor({ initialStory }: { initialStory: any }) {
             </div>
             <div>
               <label className="block font-ui text-[11px] tracking-widest uppercase text-ink-muted mb-2">Category</label>
-              <input type="text" name="category" value={form.category} onChange={handleChange} className="w-full bg-paper border border-border p-3 font-body text-sm focus:border-indigo outline-none" />
+              <select name="category" value={form.category} onChange={handleChange} className="w-full bg-paper border border-border p-3 font-body text-sm focus:border-indigo outline-none">
+                <option value="Family">Family</option>
+                <option value="Memory">Memory</option>
+                <option value="Longing">Longing</option>
+              </select>
             </div>
             <div>
               <label className="block font-ui text-[11px] tracking-widest uppercase text-ink-muted mb-2">Read Time (min)</label>

@@ -83,7 +83,7 @@ export default async function Footer() {
         </div>
       </div>
       <div className="max-w-6xl mx-auto px-6 md:px-10 py-6 border-t border-border text-[11px] text-ink-muted font-ui">
-        © {new Date().getFullYear()} {siteName}. {settings?.stamp_est_year || "EST. 2024"}
+        © {new Date().getFullYear()} {siteName}. {settings?.stamp_est_year || "EST. 2025"}
       </div>
     </footer>
   );

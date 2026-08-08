@@ -15,12 +15,13 @@ export default async function StoriesIndexPage() {
   const stories = await getAllStories();
   const supabase = await createClient();
   const { data: hero } = await supabase.from("page_hero").select("*").eq("slug", "stories").single();
+  const { data: settings } = await supabase.from("site_settings").select("newsletter_heading, newsletter_body").eq("id", 1).single();
 
   return (
     <>
       <Nav activePage="stories" cta={{ label: hero?.cta_primary_label || "Read Stories", href: hero?.cta_primary_href || "/stories" }} />
       <StoriesClient stories={stories} hero={hero} />
-      <Newsletter />
+      <Newsletter heading={settings?.newsletter_heading} body={settings?.newsletter_body} />
       <Footer />
     </>
   );

@@ -21,22 +21,23 @@ export default async function Home() {
   
   const { data: hero } = await supabase.from("page_hero").select("*").eq("slug", "home").single();
   const { data: bookDetails } = await supabase.from("book_details").select("*").eq("id", 1).single();
+  const { data: settings } = await supabase.from("site_settings").select("stamp_est_year, newsletter_heading, newsletter_body").eq("id", 1).single();
 
   return (
     <>
       <Nav cta={{ label: hero?.cta_primary_label || "Read Stories", href: hero?.cta_primary_href || "/stories" }} />
-      <Hero hero={hero} />
+      <Hero hero={hero} estYear={settings?.stamp_est_year} />
       <Stories stories={stories} />
       <IkatDivider tone="indigo" />
       <BookShowcase details={bookDetails} />
-      <Newsletter />
+      <Newsletter heading={settings?.newsletter_heading} body={settings?.newsletter_body} />
       <Footer />
     </>
   );
 }
 
 /* ─── Hero ─── */
-function Hero({ hero }: { hero: any }) {
+function Hero({ hero, estYear }: { hero: any; estYear?: string }) {
   const eyebrow = hero?.eyebrow || "Card No. 001 · Original Short Fiction";
   const heading = hero?.heading || "Writer Lokam";
   const subheading = hero?.subheading || "Two threads, dyed separately. Woven into one story.";
@@ -95,7 +96,7 @@ function Hero({ hero }: { hero: any }) {
         </div>
 
         <div className="hidden md:block pt-2">
-          <Stamp />
+          <Stamp estYear={estYear} />
         </div>
       </div>
 
