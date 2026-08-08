@@ -18,7 +18,7 @@ WHERE id = 1;
 -- 2. Author Profile
 UPDATE author_profile SET
   name = 'Abhi',
-  bio_paragraphs = '["I grew up listening to two kinds of stories — the ones told at the dinner table, and the ones I made up on the way home from school. Somewhere along the way, the second kind started to feel like the more honest version of the first."]'::jsonb
+  bio_paragraphs = ARRAY['I grew up listening to two kinds of stories — the ones told at the dinner table, and the ones I made up on the way home from school. Somewhere along the way, the second kind started to feel like the more honest version of the first.']
 WHERE id = 1;
 
 -- 3. Page Heroes
