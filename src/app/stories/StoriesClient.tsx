@@ -4,11 +4,12 @@ import { useState } from "react";
 import { Search } from "lucide-react";
 import IkatDivider from "@/components/IkatDivider";
 import StoryCard, { type StoryData } from "@/components/StoryCard";
-import { categories, type Category } from "@/lib/constants";
 
 export default function StoriesClient({ stories, hero }: { stories: StoryData[], hero: any }) {
-  const [activeCategory, setActiveCategory] = useState<Category>("All");
+  const [activeCategory, setActiveCategory] = useState<string>("All");
   const [searchQuery, setSearchQuery] = useState("");
+
+  const dynamicCategories = ["All", ...Array.from(new Set(stories.map(s => s.category).filter(Boolean)))];
 
   const eyebrow = hero?.eyebrow || "Card No. 002 · The Full Catalog";
   const heading = hero?.heading || "The Catalog";
@@ -57,7 +58,7 @@ export default function StoriesClient({ stories, hero }: { stories: StoryData[],
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-8">
           {/* Category Filters */}
           <div className="flex flex-wrap gap-2">
-            {categories.map((cat) => {
+            {dynamicCategories.map((cat) => {
               const isActive = activeCategory === cat;
               let btnClass =
                 "text-[11px] tracking-[0.14em] uppercase px-4 py-2 border transition-colors font-ui ";
@@ -71,6 +72,8 @@ export default function StoriesClient({ stories, hero }: { stories: StoryData[],
                   btnClass += "bg-marigold text-paper border-marigold";
                 } else if (cat === "Longing") {
                   btnClass += "bg-rust text-paper border-rust";
+                } else {
+                  btnClass += "bg-ink text-paper border-ink";
                 }
               } else {
                 btnClass +=
