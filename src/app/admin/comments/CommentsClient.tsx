@@ -44,15 +44,15 @@ export default function CommentsClient({ comments }: { comments: any[] }) {
                   {new Date(comment.created_at).toLocaleDateString()}
                 </td>
                 <td className="p-4 align-top">
-                  <span className="font-semibold">{comment.author_name}</span>
+                  <span className="font-semibold">{comment.profiles?.display_name || 'Anonymous'}</span>
                   <br />
-                  <span className="text-ink-soft text-[12px]">{comment.author_email}</span>
+                  <span className="text-ink-soft text-[12px]">Reader</span>
                 </td>
                 <td className="p-4 align-top max-w-md">
                   <div className="text-[12px] text-indigo mb-1 font-ui tracking-widest uppercase">
-                    Story ID: {comment.story_id}
+                    Story: {comment.stories?.title || comment.story_id}
                   </div>
-                  {comment.content}
+                  {comment.body}
                 </td>
                 <td className="p-4 align-top">
                   <span className={`px-2 py-1 rounded-full text-[11px] font-ui tracking-widest uppercase ${

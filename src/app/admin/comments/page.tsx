@@ -6,7 +6,7 @@ export default async function CommentsServer() {
   
   const { data: comments } = await supabase
     .from("comments")
-    .select("*")
+    .select("*, profiles(display_name), stories(title)")
     .order("created_at", { ascending: false });
 
   return <CommentsClient comments={comments || []} />;
