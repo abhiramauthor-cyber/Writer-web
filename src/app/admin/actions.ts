@@ -301,3 +301,12 @@ export async function saveStory(story: any) {
   revalidatePath(`/stories/${story.slug}`);
   revalidatePath("/");
 }
+
+export async function deleteStory(slug: string) {
+  const supabase = await requireAdmin();
+  const { error } = await supabase.from("stories").delete().eq("slug", slug);
+  if (error) throw new Error(error.message);
+  revalidatePath("/admin/stories");
+  revalidatePath("/stories");
+  revalidatePath("/");
+}

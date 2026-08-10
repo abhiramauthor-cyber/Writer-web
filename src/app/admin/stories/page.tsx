@@ -1,6 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import Link from "next/link";
 import { Plus, Edit3 } from "lucide-react";
+import DeleteStoryButton from "./DeleteStoryButton";
 
 export default async function StoriesAdmin() {
   const supabase = await createClient();
@@ -49,13 +50,14 @@ export default async function StoriesAdmin() {
                     {story.is_published ? 'Published' : 'Draft'}
                   </span>
                 </td>
-                <td className="p-4 align-middle text-right">
+                <td className="p-4 align-middle text-right space-x-2">
                   <Link
                     href={`/admin/stories/edit/${story.slug}`}
                     className="inline-flex items-center gap-1.5 px-3 py-1.5 text-[12px] bg-paper border border-border rounded hover:bg-indigo hover:text-paper transition-colors"
                   >
                     <Edit3 size={14} /> Edit
                   </Link>
+                  <DeleteStoryButton slug={story.slug} />
                 </td>
               </tr>
             ))}
