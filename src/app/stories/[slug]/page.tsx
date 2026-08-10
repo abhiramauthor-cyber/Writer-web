@@ -143,7 +143,7 @@ export default async function StoryPage({ params }: { params: Promise<{ slug: st
       <div className="max-w-4xl mx-auto mt-16 md:mt-24 mb-16 md:mb-24 px-6 md:px-0">
         <RelatedStories currentSlug={slug} allStories={await getAllStories()} />
       </div>
-      <Comments storyId={storyId} initialComments={initialComments} />
+      <Comments storyId={storyId} initialComments={initialComments} isLoggedIn={!!clerkUserId} />
       <StoryMinimalFooter />
     </>
   );

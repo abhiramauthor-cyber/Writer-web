@@ -11,7 +11,7 @@ export interface CommentData {
   time: string;
 }
 
-export default function Comments({ storyId, initialComments = [] }: { storyId?: string, initialComments?: CommentData[] }) {
+export default function Comments({ storyId, initialComments = [], isLoggedIn = false }: { storyId?: string, initialComments?: CommentData[], isLoggedIn?: boolean }) {
   const pathname = usePathname();
   const [text, setText] = useState("");
   const [comments, setComments] = useState(initialComments);
@@ -19,8 +19,11 @@ export default function Comments({ storyId, initialComments = [] }: { storyId?: 
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!text.trim() || !storyId) {
-      if (!storyId) alert("Please log in to comment.");
+    if (!storyId || !isLoggedIn) {
+      alert("Please log in to comment.");
+      return;
+    }
+    if (!text.trim()) {
       return;
     }
     
