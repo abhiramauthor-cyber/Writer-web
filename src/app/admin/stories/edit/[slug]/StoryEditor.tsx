@@ -6,7 +6,7 @@ import { saveStory } from "../../../actions";
 import { Save, ArrowLeft, Eye } from "lucide-react";
 import Link from "next/link";
 
-export default function StoryEditor({ initialStory }: { initialStory: any }) {
+export default function StoryEditor({ initialStory, existingCategories = [] }: { initialStory: any, existingCategories?: string[] }) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
 
@@ -24,10 +24,31 @@ export default function StoryEditor({ initialStory }: { initialStory: any }) {
 
   const handleChange = (e: any) => {
     const { name, value, type, checked } = e.target;
-    setForm(prev => ({
-      ...prev,
-      [name]: type === 'checkbox' ? checked : value
-    }));
+    
+    setForm(prev => {
+      const newForm = {
+        ...prev,
+        [name]: type === 'checkbox' ? checked : value
+      };
+
+      // Auto-generate slug from title for new stories
+      if (!initialStory?.id && name === 'title') {
+        newForm.slug = value.toString().toLowerCase()
+          .replace(/\s+/g, '-')
+          .replace(/[^\w\-]+/g, '')
+          .replace(/\-\-+/g, '-')
+          .replace(/^-+/, '')
+          .replace(/-+$/, '');
+      }
+
+      // Auto-generate read time from body
+      if (name === 'body_mdx') {
+        const words = value.trim().split(/\s+/).length;
+        newForm.read_time_minutes = Math.max(1, Math.ceil(words / 200));
+      }
+
+      return newForm;
+    });
   };
 
   const handleSave = () => {
@@ -36,8 +57,16 @@ export default function StoryEditor({ initialStory }: { initialStory: any }) {
       return;
     }
 
+    const dataToSave = { ...form };
+    
+    // Auto-generate excerpt if empty
+    if (!dataToSave.excerpt && dataToSave.body_mdx) {
+      const firstPara = dataToSave.body_mdx.split('\n\n')[0].replace(/<[^>]*>?/gm, '');
+      dataToSave.excerpt = firstPara.substring(0, 150) + (firstPara.length > 150 ? '...' : '');
+    }
+
     startTransition(() => {
-      saveStory(form).then(() => {
+      saveStory(dataToSave).then(() => {
         alert("Story saved successfully!");
         if (!form.id) {
           router.push('/admin/stories');
@@ -73,7 +102,8 @@ export default function StoryEditor({ initialStory }: { initialStory: any }) {
             </div>
             <div>
               <label className="block font-ui text-[11px] tracking-widest uppercase text-ink-muted mb-2">URL Slug *</label>
-              <input type="text" name="slug" value={form.slug} onChange={handleChange} disabled={!!form.id} className="w-full bg-paper border border-border p-3 font-body text-sm focus:border-indigo outline-none disabled:bg-paper-card" required />
+              <input type="text" name="slug" value={form.slug} onChange={handleChange} disabled={!!initialStory?.id} className="w-full bg-paper border border-border p-3 font-body text-sm focus:border-indigo outline-none disabled:bg-paper-card disabled:text-ink-muted" required />
+              <p className="mt-1 text-[10px] text-ink-soft">Auto-generated from title. Used in the URL.</p>
             </div>
           </div>
 
@@ -81,24 +111,26 @@ export default function StoryEditor({ initialStory }: { initialStory: any }) {
             <div>
               <label className="block font-ui text-[11px] tracking-widest uppercase text-ink-muted mb-2">Catalog No. *</label>
               <input type="number" name="catalog_no" value={form.catalog_no} onChange={handleChange} className="w-full bg-paper border border-border p-3 font-body text-sm focus:border-indigo outline-none" required />
+              <p className="mt-1 text-[10px] text-ink-soft">Auto-assigned sequential number.</p>
             </div>
             <div>
               <label className="block font-ui text-[11px] tracking-widest uppercase text-ink-muted mb-2">Category</label>
-              <select name="category" value={form.category} onChange={handleChange} className="w-full bg-paper border border-border p-3 font-body text-sm focus:border-indigo outline-none">
-                <option value="Family">Family</option>
-                <option value="Memory">Memory</option>
-                <option value="Longing">Longing</option>
-              </select>
+              <input type="text" name="category" list="categories" value={form.category} onChange={handleChange} className="w-full bg-paper border border-border p-3 font-body text-sm focus:border-indigo outline-none" placeholder="e.g. Fiction" />
+              <datalist id="categories">
+                {existingCategories.map(cat => <option key={cat} value={cat} />)}
+              </datalist>
             </div>
             <div>
               <label className="block font-ui text-[11px] tracking-widest uppercase text-ink-muted mb-2">Read Time (min)</label>
               <input type="number" name="read_time_minutes" value={form.read_time_minutes} onChange={handleChange} className="w-full bg-paper border border-border p-3 font-body text-sm focus:border-indigo outline-none" />
+              <p className="mt-1 text-[10px] text-ink-soft">Auto-calculated from story length.</p>
             </div>
           </div>
 
           <div>
             <label className="block font-ui text-[11px] tracking-widest uppercase text-ink-muted mb-2">Excerpt</label>
-            <textarea name="excerpt" value={form.excerpt} onChange={handleChange} rows={2} className="w-full bg-paper border border-border p-3 font-body text-sm focus:border-indigo outline-none" />
+            <textarea name="excerpt" value={form.excerpt} onChange={handleChange} rows={2} className="w-full bg-paper border border-border p-3 font-body text-sm focus:border-indigo outline-none" placeholder="Leave blank to auto-generate from the story content." />
+            <p className="mt-1 text-[10px] text-ink-soft">Short summary shown on the story card.</p>
           </div>
 
           <div>
