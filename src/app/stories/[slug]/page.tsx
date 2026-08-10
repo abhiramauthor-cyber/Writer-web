@@ -78,6 +78,11 @@ export default async function StoryPage({ params }: { params: Promise<{ slug: st
   // 2. Get initial user state for EngagementBar
   let initialLiked = false;
   let initialSaved = false;
+  let likeCount = 0;
+  if (storyId) {
+    const { count } = await supabase.from("likes").select("*", { count: "exact", head: true }).eq("story_id", storyId);
+    likeCount = count || 0;
+  }
   if (clerkUserId && storyId) {
     const [likeRes, bookmarkRes] = await Promise.all([
       supabase.from("likes").select("*").eq("user_id", clerkUserId).eq("story_id", storyId).single(),
@@ -121,6 +126,7 @@ export default async function StoryPage({ params }: { params: Promise<{ slug: st
         storyId={storyId} 
         initialLiked={initialLiked} 
         initialSaved={initialSaved} 
+        initialLikeCount={likeCount}
       />
       <StoryHeader story={story} />
       
@@ -134,6 +140,7 @@ export default async function StoryPage({ params }: { params: Promise<{ slug: st
             storyId={storyId} 
             initialLiked={initialLiked} 
             initialSaved={initialSaved} 
+            initialLikeCount={likeCount}
           />
         </div>
       </article>

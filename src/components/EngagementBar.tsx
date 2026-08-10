@@ -12,17 +12,20 @@ interface EngagementBarProps {
   storyId?: string;
   initialLiked?: boolean;
   initialSaved?: boolean;
+  initialLikeCount?: number;
 }
 
 export default function EngagementBar({ 
   sticky = false, 
   storyId, 
   initialLiked = false, 
-  initialSaved = false 
+  initialSaved = false,
+  initialLikeCount = 0
 }: EngagementBarProps) {
   const pathname = usePathname();
   const [liked, setLiked] = useState(initialLiked);
   const [saved, setSaved] = useState(initialSaved);
+  const [likeCount, setLikeCount] = useState(initialLikeCount);
   const [copied, setCopied] = useState(false);
   const [isPending, startTransition] = useTransition();
 
@@ -30,8 +33,14 @@ export default function EngagementBar({
     if (!storyId) return alert("Please log in to like this story.");
     // Optimistic update
     setLiked(!liked);
-    startTransition(() => {
-      toggleLike(storyId, liked, pathname).catch(() => setLiked(liked)); // revert on error
+    setLikeCount(liked ? Math.max(0, likeCount - 1) : likeCount + 1);
+    startTransition(async () => {
+      try {
+        await toggleLike(storyId, liked, pathname);
+      } catch (err) {
+        setLiked(liked); // revert on error
+        setLikeCount(liked ? likeCount : Math.max(0, likeCount - 1));
+      }
     });
   };
 
@@ -39,8 +48,12 @@ export default function EngagementBar({
     if (!storyId) return alert("Please log in to save this story.");
     // Optimistic update
     setSaved(!saved);
-    startTransition(() => {
-      toggleBookmark(storyId, saved, pathname).catch(() => setSaved(saved)); // revert on error
+    startTransition(async () => {
+      try {
+        await toggleBookmark(storyId, saved, pathname);
+      } catch (err) {
+        setSaved(saved); // revert on error
+      }
     });
   };
 
@@ -50,6 +63,21 @@ export default function EngagementBar({
     }
     setCopied(true);
     setTimeout(() => setCopied(false), 1800);
+  };
+
+  const handleShare = async () => {
+    if (typeof navigator !== "undefined" && navigator.share) {
+      try {
+        await navigator.share({
+          title: document.title,
+          url: window.location.href,
+        });
+      } catch (err) {
+        console.error("Error sharing", err);
+      }
+    } else {
+      handleCopy();
+    }
   };
 
   const btnBase =
@@ -69,13 +97,18 @@ export default function EngagementBar({
         onClick={handleLike}
         disabled={isPending}
         aria-label="Like story"
-        className={`${btnBase} ${
+        className={`relative ${btnBase} ${
           liked
             ? "border-rust text-rust bg-rust/5"
             : btnDefault
         }`}
       >
         <Heart size={17} fill={liked ? "currentColor" : "none"} />
+        {likeCount > 0 && (
+          <span className={`absolute -top-2 -right-2 text-[10px] font-ui px-1.5 py-0.5 rounded-full border ${liked ? 'bg-rust text-paper border-rust' : 'bg-paper text-ink-muted border-border'}`}>
+            {likeCount}
+          </span>
+        )}
       </button>
       <button
         onClick={handleBookmark}
@@ -97,6 +130,7 @@ export default function EngagementBar({
         <MessageCircle size={17} />
       </a>
       <button
+        onClick={handleShare}
         aria-label="Share story"
         className={`${btnBase} ${btnDefault}`}
       >

@@ -24,13 +24,14 @@ export default function Comments({ storyId, initialComments = [] }: { storyId?: 
       return;
     }
     
-    startTransition(() => {
-      postComment(storyId, text, pathname)
-        .then(() => {
-          setComments([...comments, { id: "pending-" + Date.now(), name: "You (Pending)", body: text, time: "just now" }]);
-          setText("");
-        })
-        .catch((err) => alert(err.message));
+    startTransition(async () => {
+      try {
+        await postComment(storyId, text, pathname);
+        setComments([...comments, { id: "pending-" + Date.now(), name: "You (Pending)", body: text, time: "just now" }]);
+        setText("");
+      } catch (err: any) {
+        alert(err.message);
+      }
     });
   };
 
