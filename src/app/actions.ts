@@ -48,10 +48,21 @@ export async function postComment(storyId: string, body: string, path: string) {
   }
 
   const supabase = await createClient();
+  const { auth, currentUser } = await import("@clerk/nextjs/server");
   const { userId } = await auth();
 
   if (!userId) {
     throw new Error("You must be logged in to comment.");
+  }
+
+  // Ensure user profile exists to prevent foreign key errors (code 23503)
+  const user = await currentUser();
+  if (user) {
+    const name = `${user.firstName || ''} ${user.lastName || ''}`.trim() || user.emailAddresses[0]?.emailAddress || 'Anonymous';
+    await supabase.from('profiles').upsert({
+      id: user.id,
+      display_name: name
+    });
   }
 
   const { error } = await supabase.from("comments").insert({
@@ -62,7 +73,8 @@ export async function postComment(storyId: string, body: string, path: string) {
   });
 
   if (error) {
-    throw new Error(error.message);
+    console.error("Error inserting comment:", error);
+    throw new Error(error.message || "Failed to post comment");
   }
 
   revalidatePath(path);
