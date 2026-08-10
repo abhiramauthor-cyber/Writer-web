@@ -121,13 +121,6 @@ export default async function StoryPage({ params }: { params: Promise<{ slug: st
     <>
       <ReadingProgress />
       <Nav variant="reading" />
-      <EngagementBar 
-        sticky 
-        storyId={storyId} 
-        initialLiked={initialLiked} 
-        initialSaved={initialSaved} 
-        initialLikeCount={likeCount}
-      />
       <StoryHeader story={story} />
       
       <article className="max-w-2xl mx-auto px-6 md:px-10 pb-14">
