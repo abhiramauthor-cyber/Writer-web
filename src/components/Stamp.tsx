@@ -3,86 +3,81 @@ interface StampProps {
 }
 
 export default function Stamp({ estYear }: StampProps) {
-  // Extract numeric year from settings value like "EST. 2025"
   const year = estYear?.replace(/\D/g, '') || '2025';
-  
+
+  // All geometry is based on a 200×200 viewBox, center at (100,100).
+  // Text ring radius = 62  →  arc from (38,100) to (162,100)
+  // Separators sit at exactly 3-o'clock and 9-o'clock on that ring.
+
   return (
     <div className="relative w-28 h-28 md:w-32 md:h-32 drop-shadow-md flex items-center justify-center">
       <svg
-        viewBox="0 0 140 140"
+        viewBox="0 0 200 200"
         className="w-full h-full"
         aria-hidden="true"
       >
         <defs>
-          {/* Top Arc (Clockwise) */}
+          {/* Top arc — clockwise from left to right */}
           <path
-            id="stampTopPath"
-            d="M 26,70 A 44,44 0 0,1 114,70"
+            id="stampTopArc"
+            d="M 38,100 A 62,62 0 0,1 162,100"
             fill="none"
           />
-          {/* Bottom Arc (Counter-Clockwise) */}
+          {/* Bottom arc — counter-clockwise from left to right */}
           <path
-            id="stampBottomPath"
-            d="M 26,70 A 44,44 0 0,0 114,70"
+            id="stampBottomArc"
+            d="M 38,100 A 62,62 0 0,0 162,100"
             fill="none"
           />
         </defs>
 
-        {/* Outer decorative ring */}
-        <circle cx="70" cy="70" r="66" fill="none" stroke="currentColor" strokeWidth="1" className="text-rust/40" />
-        <circle cx="70" cy="70" r="62" fill="none" stroke="currentColor" strokeWidth="1.5" strokeDasharray="3 4" className="text-rust/70" />
-        
-        {/* Inner framing ring */}
-        <circle cx="70" cy="70" r="54" fill="none" stroke="currentColor" strokeWidth="0.5" className="text-rust/60" />
-        <circle cx="70" cy="70" r="34" fill="none" stroke="currentColor" strokeWidth="0.5" className="text-rust/60" />
+        {/* ── Rings ── */}
+        {/* Outermost thin ring */}
+        <circle cx="100" cy="100" r="95" fill="none" stroke="currentColor" strokeWidth="0.75" className="text-rust/30" />
+        {/* Dashed decorative ring */}
+        <circle cx="100" cy="100" r="89" fill="none" stroke="currentColor" strokeWidth="1.25" strokeDasharray="4 5" className="text-rust/50" />
+        {/* Text-track ring (sits behind the curved text) */}
+        <circle cx="100" cy="100" r="78" fill="none" stroke="currentColor" strokeWidth="0.5" className="text-rust/25" />
+        {/* Inner ring enclosing the center */}
+        <circle cx="100" cy="100" r="46" fill="none" stroke="currentColor" strokeWidth="0.5" className="text-rust/25" />
 
-        {/* Circular Text */}
+        {/* ── Curved text ── */}
         <text
-          fontSize="10.5"
-          letterSpacing="4"
+          fontSize="13"
+          letterSpacing="5.5"
           fill="currentColor"
           fontFamily="var(--font-ui), sans-serif"
-          className="text-rust uppercase"
-          style={{ fontVariantNumeric: 'lining-nums' }}
+          className="text-rust"
           dominantBaseline="central"
         >
-          {/* Top Text */}
-          <textPath href="#stampTopPath" startOffset="50%" textAnchor="middle">
+          <textPath href="#stampTopArc" startOffset="50%" textAnchor="middle">
             WRITER LOKAM
           </textPath>
         </text>
 
         <text
-          fontSize="10.5"
-          letterSpacing="4"
+          fontSize="13"
+          letterSpacing="5.5"
           fill="currentColor"
           fontFamily="var(--font-ui), sans-serif"
-          className="text-rust uppercase"
-          style={{ fontVariantNumeric: 'lining-nums' }}
+          className="text-rust"
           dominantBaseline="central"
         >
-          {/* Bottom Text */}
-          <textPath href="#stampBottomPath" startOffset="50%" textAnchor="middle">
+          <textPath href="#stampBottomArc" startOffset="50%" textAnchor="middle">
             READING ROOM
           </textPath>
         </text>
 
-        {/* Elegantly Crafted Separators */}
-        <g transform="translate(26, 70)" className="text-rust/80">
-          <path d="M 0,-6 Q 0,0 6,0 Q 0,0 0,6 Q 0,0 -6,0 Q 0,0 0,-6 Z" fill="currentColor" />
-          <path d="M 0,-1.5 L 1.5,0 L 0,1.5 L -1.5,0 Z" fill="#F9F8F3" />
-        </g>
-        <g transform="translate(114, 70)" className="text-rust/80">
-          <path d="M 0,-6 Q 0,0 6,0 Q 0,0 0,6 Q 0,0 -6,0 Q 0,0 0,-6 Z" fill="currentColor" />
-          <path d="M 0,-1.5 L 1.5,0 L 0,1.5 L -1.5,0 Z" fill="#F9F8F3" />
-        </g>
+        {/* ── Separators — small elegant dots at 9 & 3 o'clock ── */}
+        <circle cx="38"  cy="100" r="2" fill="currentColor" className="text-rust/70" />
+        <circle cx="162" cy="100" r="2" fill="currentColor" className="text-rust/70" />
 
-        {/* Center est. text */}
+        {/* ── Center lockup ── */}
         <text
-          x="70"
-          y="65"
+          x="100"
+          y="93"
           textAnchor="middle"
-          fontSize="18"
+          fontSize="24"
           fill="currentColor"
           fontFamily="var(--font-display), serif"
           fontStyle="italic"
@@ -90,16 +85,18 @@ export default function Stamp({ estYear }: StampProps) {
         >
           est.
         </text>
-        
-        {/* Center Year text */}
+
+        {/* Thin horizontal rule */}
+        <line x1="82" y1="101" x2="118" y2="101" stroke="currentColor" strokeWidth="0.5" className="text-rust/30" />
+
         <text
-          x="70"
-          y="83"
+          x="100"
+          y="114"
           textAnchor="middle"
-          fontSize="12"
+          fontSize="15"
           fill="currentColor"
           fontFamily="var(--font-ui), sans-serif"
-          letterSpacing="2"
+          letterSpacing="3"
           className="text-rust font-medium"
         >
           {year}
@@ -108,3 +105,4 @@ export default function Stamp({ estYear }: StampProps) {
     </div>
   );
 }
+
