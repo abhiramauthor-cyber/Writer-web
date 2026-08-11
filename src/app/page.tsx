@@ -52,10 +52,10 @@ function Hero({ hero, estYear }: { hero: any; estYear?: string }) {
     <section className="max-w-6xl mx-auto px-6 md:px-10 pt-16 md:pt-24 pb-16">
       <div className="grid md:grid-cols-[1fr_auto] gap-10 items-start">
         <div>
-          <p className="text-[11px] tracking-[0.24em] uppercase text-indigo mb-6 font-ui">
+          <p className="text-[11px] tracking-[0.24em] uppercase text-indigo mb-6 font-ui opacity-0 animate-fade-in-up">
             {eyebrow}
           </p>
-          <h1 className="font-display text-ink leading-[0.95] text-[54px] sm:text-[76px] md:text-[92px]">
+          <h1 className="font-display text-ink leading-[0.95] text-[54px] sm:text-[76px] md:text-[92px] opacity-0 animate-fade-in-up-delay-1">
             {restPart ? (
               <>
                 {firstPart}
@@ -67,17 +67,17 @@ function Hero({ hero, estYear }: { hero: any; estYear?: string }) {
             )}
           </h1>
           {subheading && (
-            <p className="mt-8 font-display italic text-xl md:text-2xl text-ink-soft max-w-lg">
+            <p className="mt-8 font-display italic text-xl md:text-2xl text-ink-soft max-w-lg opacity-0 animate-fade-in-up-delay-2">
               {subheading}
             </p>
           )}
           {body && (
-            <p className="mt-4 text-[15px] text-nav-muted max-w-md leading-relaxed font-body whitespace-pre-wrap">
+            <p className="mt-4 text-[15px] text-nav-muted max-w-md leading-relaxed font-body whitespace-pre-wrap opacity-0 animate-fade-in-up-delay-2">
               {body}
             </p>
           )}
 
-          <div className="mt-10 flex flex-wrap gap-4">
+          <div className="mt-10 flex flex-wrap gap-4 opacity-0 animate-fade-in-up-delay-2">
             <Link
               href={hero?.cta_primary_href || "/stories"}
               className="bg-ink text-paper text-[11px] tracking-[0.18em] uppercase px-7 py-4 hover:bg-indigo transition-colors font-ui"

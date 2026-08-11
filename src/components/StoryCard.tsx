@@ -35,7 +35,9 @@ export default function StoryCard({ story }: { story: StoryData }) {
   const textHex = threadTextColorMap[story.thread];
 
   return (
-    <div className="group relative bg-paper-card border border-border hover:border-ink/40 transition-colors flex flex-col">
+    <div 
+      className="group relative bg-paper-card border border-border hover:border-ink/20 hover:-translate-y-1 hover:shadow-2xl hover:shadow-ink/10 transition-all duration-500 flex flex-col"
+    >
       <div className="flex items-center justify-between px-6 pt-5">
         <CatalogBadge no={story.no} />
         <span

@@ -8,7 +8,7 @@ export default function Stamp({ estYear }: StampProps) {
   return (
     <svg
       viewBox="0 0 120 120"
-      className="w-24 h-24 md:w-28 md:h-28"
+      className="w-24 h-24 md:w-28 md:h-28 animate-spin-slow"
       aria-hidden="true"
     >
       <circle

@@ -91,9 +91,9 @@ export default function NavClient({
 
   return (
     <header
-      className={`sticky top-0 z-50 transition-colors duration-300 ${
+      className={`sticky top-0 z-50 transition-all duration-500 ${
         scrolled
-          ? "bg-paper/95 backdrop-blur border-b border-border"
+          ? "bg-paper/85 backdrop-blur-lg border-b border-border shadow-sm shadow-ink/5"
           : "bg-transparent"
       }`}
     >

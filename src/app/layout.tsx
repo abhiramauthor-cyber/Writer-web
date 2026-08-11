@@ -45,7 +45,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         lang="en"
         className={`${spectral.variable} ${literata.variable} ${workSans.variable} h-full`}
       >
-        <body className="min-h-full flex flex-col bg-paper text-ink antialiased">
+        <body className="min-h-full flex flex-col bg-paper text-ink antialiased bg-grain">
           {children}
         </body>
       </html>
