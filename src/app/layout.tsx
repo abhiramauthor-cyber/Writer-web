@@ -37,6 +37,8 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 import { ClerkProvider } from '@clerk/nextjs'
+import { Analytics } from "@vercel/analytics/react";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
@@ -47,6 +49,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       >
         <body className="min-h-full flex flex-col bg-paper text-ink antialiased bg-grain">
           {children}
+          <Analytics />
+          <SpeedInsights />
         </body>
       </html>
     </ClerkProvider>
