@@ -179,6 +179,17 @@ export default function NavClient({
           >
             {cta.label}
           </Link>
+          <div className="mt-4 border-t border-border pt-4 flex flex-col gap-4 items-center">
+            {isLoaded && userId ? (
+              <UserButton />
+            ) : (
+              <SignInButton mode="modal">
+                <button className="text-[11px] tracking-[0.18em] uppercase font-ui text-indigo hover:text-ink transition-colors w-full text-center">
+                  Sign In
+                </button>
+              </SignInButton>
+            )}
+          </div>
         </div>
       )}
     </header>
