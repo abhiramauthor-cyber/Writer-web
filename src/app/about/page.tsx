@@ -190,9 +190,9 @@ function SocialLinks({ settings }: { settings: any }) {
             href={settings?.social_instagram_url || "https://instagram.com"}
             target="_blank"
             rel="noopener noreferrer"
-            className="flex flex-col items-center justify-center p-6 border border-border bg-paper hover:bg-paper-card transition-colors group"
+            className="flex flex-col items-center justify-center p-8 border border-border bg-paper hover:bg-paper-card hover:-translate-y-1 hover:shadow-xl hover:shadow-ink/5 transition-all duration-500 group"
           >
-            <Instagram size={24} className="text-ink-muted group-hover:text-indigo transition-colors mb-3" />
+            <Instagram size={24} className="text-ink-muted group-hover:text-indigo transition-colors mb-4" />
             <span className="font-ui text-[11px] tracking-widest uppercase text-ink-muted group-hover:text-ink transition-colors">
               Instagram
             </span>
@@ -203,9 +203,9 @@ function SocialLinks({ settings }: { settings: any }) {
             href={settings?.social_twitter_url || "https://twitter.com"}
             target="_blank"
             rel="noopener noreferrer"
-            className="flex flex-col items-center justify-center p-6 border border-border bg-paper hover:bg-paper-card transition-colors group"
+            className="flex flex-col items-center justify-center p-8 border border-border bg-paper hover:bg-paper-card hover:-translate-y-1 hover:shadow-xl hover:shadow-ink/5 transition-all duration-500 group"
           >
-            <Twitter size={24} className="text-ink-muted group-hover:text-indigo transition-colors mb-3" />
+            <Twitter size={24} className="text-ink-muted group-hover:text-indigo transition-colors mb-4" />
             <span className="font-ui text-[11px] tracking-widest uppercase text-ink-muted group-hover:text-ink transition-colors">
               Twitter / X
             </span>
@@ -214,9 +214,9 @@ function SocialLinks({ settings }: { settings: any }) {
           {/* Email */}
           <a
             href={settings?.social_email ? `mailto:${settings.social_email}` : "#"}
-            className="flex flex-col items-center justify-center p-6 border border-border bg-paper hover:bg-paper-card transition-colors group"
+            className="flex flex-col items-center justify-center p-8 border border-border bg-paper hover:bg-paper-card hover:-translate-y-1 hover:shadow-xl hover:shadow-ink/5 transition-all duration-500 group"
           >
-            <Mail size={24} className="text-ink-muted group-hover:text-indigo transition-colors mb-3" />
+            <Mail size={24} className="text-ink-muted group-hover:text-indigo transition-colors mb-4" />
             <span className="font-ui text-[11px] tracking-widest uppercase text-ink-muted group-hover:text-ink transition-colors">
               Email
             </span>
