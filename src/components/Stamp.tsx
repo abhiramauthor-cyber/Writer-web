@@ -67,9 +67,15 @@ export default function Stamp({ estYear }: StampProps) {
           </textPath>
         </text>
 
-        {/* Separators */}
-        <text x="21" y="70" textAnchor="middle" dominantBaseline="central" fontSize="10" className="text-rust/70">✦</text>
-        <text x="119" y="70" textAnchor="middle" dominantBaseline="central" fontSize="10" className="text-rust/70">✦</text>
+        {/* Elegantly Crafted Separators */}
+        <g transform="translate(26, 70)" className="text-rust/80">
+          <path d="M 0,-6 Q 0,0 6,0 Q 0,0 0,6 Q 0,0 -6,0 Q 0,0 0,-6 Z" fill="currentColor" />
+          <path d="M 0,-1.5 L 1.5,0 L 0,1.5 L -1.5,0 Z" fill="#F9F8F3" />
+        </g>
+        <g transform="translate(114, 70)" className="text-rust/80">
+          <path d="M 0,-6 Q 0,0 6,0 Q 0,0 0,6 Q 0,0 -6,0 Q 0,0 0,-6 Z" fill="currentColor" />
+          <path d="M 0,-1.5 L 1.5,0 L 0,1.5 L -1.5,0 Z" fill="#F9F8F3" />
+        </g>
 
         {/* Center est. text */}
         <text
