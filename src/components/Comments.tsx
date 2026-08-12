@@ -58,16 +58,15 @@ export default function Comments({ storyId, initialComments = [], isLoggedIn = f
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!text.trim()) {
-      return;
-    }
-
-    // If not logged in, stash draft and open sign-in modal
+    // If not logged in, open sign-in modal immediately (draft text is auto-saved in localStorage via useEffect)
     if (!isSignedIn) {
-      // Draft is already saved to localStorage via the useEffect above
       openSignIn({
         forceRedirectUrl: pathname,
       });
+      return;
+    }
+
+    if (!text.trim()) {
       return;
     }
 
@@ -122,13 +121,23 @@ export default function Comments({ storyId, initialComments = [], isLoggedIn = f
           placeholder="What did this story bring up for you?"
           className="w-full bg-paper-card border border-border px-4 py-3 text-sm text-ink placeholder-placeholder focus:outline-none focus:border-indigo font-body resize-none mb-4"
         />
-        <button
-          type="submit"
-          disabled={isPending}
-          className="bg-ink text-paper text-[11px] tracking-[0.18em] uppercase px-6 py-3 hover:bg-indigo transition-colors font-ui disabled:opacity-50"
-        >
-          {isPending ? "Posting..." : isSignedIn ? "Post comment" : "Sign in to comment"}
-        </button>
+        {isSignedIn ? (
+          <button
+            type="submit"
+            disabled={isPending}
+            className="bg-ink text-paper text-[11px] tracking-[0.18em] uppercase px-6 py-3 hover:bg-indigo transition-colors font-ui disabled:opacity-50"
+          >
+            {isPending ? "Posting..." : "Post comment"}
+          </button>
+        ) : (
+          <button
+            type="button"
+            onClick={() => openSignIn({ forceRedirectUrl: pathname })}
+            className="bg-ink text-paper text-[11px] tracking-[0.18em] uppercase px-6 py-3 hover:bg-indigo transition-colors font-ui"
+          >
+            Sign in to comment
+          </button>
+        )}
       </form>
     </section>
   );
