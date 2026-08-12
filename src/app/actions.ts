@@ -5,18 +5,29 @@ import { auth } from "@clerk/nextjs/server";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 
-export async function toggleLike(storyId: string, currentStatus: boolean, path: string) {
+export async function toggleLike(storyId: string, currentStatus: boolean, path: string, anonId?: string) {
   const supabase = await createClient();
   const { userId } = await auth();
 
-  if (!userId) {
-    throw new Error("You must be logged in to like a story.");
+  // Use Clerk user ID if logged in, otherwise use the anonymous cookie ID
+  const likerId = userId || anonId;
+
+  if (!likerId) {
+    throw new Error("Unable to identify user. Please refresh and try again.");
   }
 
   if (currentStatus) {
-    await supabase.from("likes").delete().eq("user_id", userId).eq("story_id", storyId);
+    await supabase.from("likes").delete().eq("liker_id", likerId).eq("story_id", storyId);
   } else {
-    await supabase.from("likes").insert({ user_id: userId, story_id: storyId });
+    const { error } = await supabase.from("likes").insert({ liker_id: likerId, story_id: storyId });
+    // Gracefully handle duplicate key (already liked)
+    if (error && error.code === "23505") {
+      // Already liked — not an error from the user's perspective
+      return;
+    }
+    if (error) {
+      throw new Error("Failed to like this story. Please try again.");
+    }
   }
 
   revalidatePath(path);

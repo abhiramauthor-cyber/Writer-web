@@ -12,14 +12,28 @@ ALTER TABLE comments DROP CONSTRAINT IF EXISTS comments_user_id_fkey;
 ALTER TABLE profiles DROP CONSTRAINT IF EXISTS profiles_id_fkey;
 
 -- 3. Drop RLS policies that rely on the uuid columns
+-- (covers both schema.sql names and phase8_likes_bookmarks.sql names)
 DROP POLICY IF EXISTS "Users can update own profile" ON profiles;
+
+-- Likes policies (both naming variants)
 DROP POLICY IF EXISTS "Users can insert own likes" ON likes;
+DROP POLICY IF EXISTS "Users can insert their own likes" ON likes;
 DROP POLICY IF EXISTS "Users can delete own likes" ON likes;
+DROP POLICY IF EXISTS "Users can delete their own likes" ON likes;
+DROP POLICY IF EXISTS "Likes are viewable by everyone" ON likes;
+
+-- Bookmarks policies (both naming variants)
 DROP POLICY IF EXISTS "Users can view own bookmarks" ON bookmarks;
+DROP POLICY IF EXISTS "Users can view their own bookmarks" ON bookmarks;
 DROP POLICY IF EXISTS "Users can insert own bookmarks" ON bookmarks;
+DROP POLICY IF EXISTS "Users can insert their own bookmarks" ON bookmarks;
 DROP POLICY IF EXISTS "Users can delete own bookmarks" ON bookmarks;
+DROP POLICY IF EXISTS "Users can delete their own bookmarks" ON bookmarks;
+
+-- Comments policies
 DROP POLICY IF EXISTS "Users can view own pending comments" ON comments;
 DROP POLICY IF EXISTS "Users can insert own comments" ON comments;
+DROP POLICY IF EXISTS "Approved comments are viewable by everyone" ON comments;
 
 -- Admin policies that reference profiles.id
 DROP POLICY IF EXISTS "author_profile admin write" ON author_profile;

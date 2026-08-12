@@ -1,11 +1,14 @@
 import { ArrowRight, Mail } from "lucide-react";
 import Link from "next/link";
+import Image from "next/image";
 import Nav from "@/components/Nav";
 import Footer from "@/components/Footer";
 import { createClient } from "@/lib/supabase/server";
 import IkatDivider from "@/components/IkatDivider";
 import ContactForm from "@/components/ContactForm";
 import type { Metadata } from "next";
+
+export const revalidate = 3600; // ISR: revalidate every hour
 
 export const metadata: Metadata = {
   title: "About",
@@ -76,9 +79,15 @@ function AboutHero({ hero, author }: { hero: any, author: any }) {
     <section className="max-w-6xl mx-auto px-6 md:px-10 pt-16 md:pt-20 pb-16">
       <div className="grid md:grid-cols-[auto_1fr] gap-10 items-center">
         {imageUrl ? (
-          <div className="w-28 h-28 md:w-36 md:h-36 rounded-full overflow-hidden shrink-0 mx-auto md:mx-0 border-2 border-indigo">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={imageUrl} alt="Author" className="w-full h-full object-cover" />
+          <div className="relative w-28 h-28 md:w-36 md:h-36 rounded-full overflow-hidden shrink-0 mx-auto md:mx-0 border-2 border-indigo">
+            <Image
+              src={imageUrl}
+              alt="Author"
+              fill
+              className="object-cover"
+              sizes="(max-width: 768px) 112px, 144px"
+              priority
+            />
           </div>
         ) : (
           <div className="w-28 h-28 md:w-36 md:h-36 rounded-full bg-indigo flex items-center justify-center font-display text-5xl italic text-paper shrink-0 mx-auto md:mx-0">

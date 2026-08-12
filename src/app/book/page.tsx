@@ -1,11 +1,14 @@
 import { BookOpen, Quote, Heart, Bookmark, ArrowRight } from "lucide-react";
 import Link from "next/link";
+import Image from "next/image";
 import Nav from "@/components/Nav";
 import Footer from "@/components/Footer";
 import IkatDivider from "@/components/IkatDivider";
 import BuySection from "./BuySection";
 import type { Metadata } from "next";
 import { createClient } from "@/lib/supabase/server";
+
+export const revalidate = 3600; // ISR: revalidate every hour
 
 export const metadata: Metadata = {
   title: "Two States, One Heart",
@@ -49,8 +52,14 @@ function BookHero({ hero, details }: { hero: any, details: any }) {
         <div className="order-1 md:order-2 flex justify-center">
           {imageUrl ? (
             <div className="relative w-64 md:w-80 aspect-[2/3] border border-border overflow-hidden bg-paper shadow-2xl">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={imageUrl} alt={heading} className="w-full h-full object-cover" />
+              <Image
+                src={imageUrl}
+                alt={heading}
+                fill
+                className="object-cover"
+                sizes="(max-width: 768px) 256px, 320px"
+                priority
+              />
             </div>
           ) : (
             <div className="relative w-64 md:w-80 aspect-[2/3] bg-indigo p-7 flex flex-col justify-between shadow-2xl">
@@ -134,9 +143,14 @@ function AboutAuthor({ author }: { author: any }) {
       <div className="max-w-6xl mx-auto px-6 md:px-10 py-16 md:py-20">
         <div className="grid md:grid-cols-[auto_1fr] gap-8 md:gap-12 items-start">
           {author?.avatar_url ? (
-            <div className="w-20 h-20 rounded-full border border-border overflow-hidden shrink-0">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={author.avatar_url} alt={name} className="w-full h-full object-cover" />
+            <div className="relative w-20 h-20 rounded-full border border-border overflow-hidden shrink-0">
+              <Image
+                src={author.avatar_url}
+                alt={name}
+                fill
+                className="object-cover"
+                sizes="80px"
+              />
             </div>
           ) : (
             <div className="w-20 h-20 rounded-full bg-indigo flex items-center justify-center font-display text-2xl italic text-paper shrink-0">

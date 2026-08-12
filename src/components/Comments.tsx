@@ -1,8 +1,10 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useState, useEffect, useTransition } from "react";
 import { postComment } from "@/app/actions";
 import { usePathname } from "next/navigation";
+import { useAuth, useClerk } from "@clerk/nextjs";
+import { useToast } from "@/components/Toast";
 
 export interface CommentData {
   id: string;
@@ -11,29 +13,78 @@ export interface CommentData {
   time: string;
 }
 
+function getDraftKey(storyId?: string) {
+  return storyId ? `wl_comment_draft_${storyId}` : null;
+}
+
 export default function Comments({ storyId, initialComments = [], isLoggedIn = false }: { storyId?: string, initialComments?: CommentData[], isLoggedIn?: boolean }) {
   const pathname = usePathname();
+  const { isSignedIn } = useAuth();
+  const { openSignIn } = useClerk();
+  const { showToast } = useToast();
   const [text, setText] = useState("");
   const [comments, setComments] = useState(initialComments);
   const [isPending, startTransition] = useTransition();
 
+  const draftKey = getDraftKey(storyId);
+
+  // Restore draft from localStorage on mount
+  useEffect(() => {
+    if (!draftKey) return;
+    try {
+      const saved = localStorage.getItem(draftKey);
+      if (saved) {
+        setText(saved);
+      }
+    } catch {
+      // localStorage unavailable — ignore
+    }
+  }, [draftKey]);
+
+  // Persist draft to localStorage as user types
+  useEffect(() => {
+    if (!draftKey) return;
+    try {
+      if (text.trim()) {
+        localStorage.setItem(draftKey, text);
+      } else {
+        localStorage.removeItem(draftKey);
+      }
+    } catch {
+      // localStorage unavailable — ignore
+    }
+  }, [text, draftKey]);
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!storyId || !isLoggedIn) {
-      alert("Please log in to comment.");
-      return;
-    }
+
     if (!text.trim()) {
       return;
     }
+
+    // If not logged in, stash draft and open sign-in modal
+    if (!isSignedIn) {
+      // Draft is already saved to localStorage via the useEffect above
+      openSignIn({
+        forceRedirectUrl: pathname,
+      });
+      return;
+    }
+
+    if (!storyId) return;
     
     startTransition(async () => {
       try {
         await postComment(storyId, text, pathname);
         setComments([...comments, { id: "pending-" + Date.now(), name: "You (Pending)", body: text, time: "just now" }]);
         setText("");
+        // Clear draft from localStorage on successful post
+        if (draftKey) {
+          try { localStorage.removeItem(draftKey); } catch {}
+        }
+        showToast("Comment posted — pending approval", "success");
       } catch (err: any) {
-        alert(err.message);
+        showToast(err.message || "Failed to post comment", "error");
       }
     });
   };
@@ -76,7 +127,7 @@ export default function Comments({ storyId, initialComments = [], isLoggedIn = f
           disabled={isPending}
           className="bg-ink text-paper text-[11px] tracking-[0.18em] uppercase px-6 py-3 hover:bg-indigo transition-colors font-ui disabled:opacity-50"
         >
-          {isPending ? "Posting..." : "Post comment"}
+          {isPending ? "Posting..." : isSignedIn ? "Post comment" : "Sign in to comment"}
         </button>
       </form>
     </section>

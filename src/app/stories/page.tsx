@@ -6,6 +6,8 @@ import { getAllStories } from "@/lib/data";
 import { createClient } from "@/lib/supabase/server";
 import type { Metadata } from "next";
 
+export const revalidate = 3600; // ISR: revalidate every hour
+
 export const metadata: Metadata = {
   title: "The Catalog",
   description: "Browse the complete catalog of stories at Writer Lokam. Every story, catalogued and kept.",

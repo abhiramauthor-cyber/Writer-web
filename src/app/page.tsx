@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { ArrowRight, BookOpen } from "lucide-react";
 import Nav from "@/components/Nav";
 import Footer from "@/components/Footer";
@@ -9,6 +10,8 @@ import Newsletter from "@/components/Newsletter";
 import { getAllStories } from "@/lib/data";
 import { createClient } from "@/lib/supabase/server";
 import type { Metadata } from "next";
+
+export const revalidate = 3600; // ISR: revalidate every hour
 
 export const metadata: Metadata = {
   title: "Home",
@@ -173,8 +176,13 @@ function BookShowcase({ details }: { details: any }) {
           <div className="order-1 md:order-2 flex justify-center">
             {imageUrl ? (
               <div className="relative w-56 md:w-72 aspect-[2/3] border border-border overflow-hidden bg-paper shadow-xl">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={imageUrl} alt={title} className="w-full h-full object-cover" />
+                <Image
+                  src={imageUrl}
+                  alt={title}
+                  fill
+                  className="object-cover"
+                  sizes="(max-width: 768px) 224px, 288px"
+                />
               </div>
             ) : (
               <div className="relative w-56 md:w-72 aspect-[2/3] bg-indigo p-7 flex flex-col justify-between shadow-xl">

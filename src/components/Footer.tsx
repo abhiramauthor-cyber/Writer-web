@@ -15,8 +15,9 @@ export default async function Footer() {
     <footer className="bg-paper">
       <div className="max-w-6xl mx-auto px-6 md:px-10 py-14 flex flex-col md:flex-row justify-between gap-8">
         <div>
-          <Link href="/" className="font-display text-lg text-ink mb-2 block">
-            {firstPart} <span className="italic text-indigo">{restPart}</span>
+          <Link href="/" className="font-display text-lg text-ink mb-2 inline-flex items-baseline leading-none">
+            <span>{firstPart}</span>
+            <span className="italic text-indigo ml-1.5">{restPart}</span>
           </Link>
           <p className="text-[13px] text-ink-muted max-w-xs leading-relaxed font-body whitespace-pre-wrap">
             {settings?.footer_blurb || "A catalogued home for stories about love, memory, and everything held between the lines."}
@@ -52,7 +53,7 @@ export default async function Footer() {
             <ul className="space-y-2 text-[13px] text-ink-soft font-ui">
               <li>
                 <a
-                  href={settings?.social_instagram_url || "https://instagram.com"}
+                  href={settings?.social_instagram_url || "https://instagram.com/pvtly.abhi"}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="hover:text-ink transition-colors"
@@ -62,7 +63,7 @@ export default async function Footer() {
               </li>
               <li>
                 <a
-                  href={settings?.social_twitter_url || "https://twitter.com"}
+                  href={settings?.social_twitter_url || "https://twitter.com/pvtly_abhi"}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="hover:text-ink transition-colors"

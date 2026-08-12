@@ -39,6 +39,8 @@ export async function generateMetadata(): Promise<Metadata> {
 import { ClerkProvider } from '@clerk/nextjs'
 import { Analytics } from "@vercel/analytics/next";
 import { SpeedInsights } from "@vercel/speed-insights/next";
+import { ToastProvider } from "@/components/Toast";
+import { BookmarkSyncProvider } from "@/components/BookmarkSync";
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
@@ -48,7 +50,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         className={`${spectral.variable} ${literata.variable} ${workSans.variable} h-full`}
       >
         <body className="min-h-full flex flex-col bg-paper text-ink antialiased bg-grain">
-          {children}
+          <ToastProvider>
+            <BookmarkSyncProvider>
+              {children}
+            </BookmarkSyncProvider>
+          </ToastProvider>
           <Analytics />
           <SpeedInsights />
         </body>

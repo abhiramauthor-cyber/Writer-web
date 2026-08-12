@@ -1,7 +1,9 @@
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
+import Image from "next/image";
 import { notFound } from "next/navigation";
 import { MDXRemote } from "next-mdx-remote/rsc";
+import { cookies } from "next/headers";
 import Nav from "@/components/Nav";
 import IkatDivider from "@/components/IkatDivider";
 import ReadingProgress from "@/components/ReadingProgress";
@@ -12,6 +14,7 @@ import { getStoryBySlug, getAllStories } from "@/lib/data";
 import type { StoryData } from "@/components/StoryCard";
 import { createClient } from "@/lib/supabase/server";
 import { auth } from "@clerk/nextjs/server";
+import { getAnonIdFromCookieHeader } from "@/lib/anonId";
 
 const threadTextColorMap: Record<string, string> = {
   indigo: "var(--color-indigo)",
@@ -23,6 +26,8 @@ const threadColorMap: Record<string, string> = {
   marigold: "var(--color-marigold)",
   rust: "var(--color-rust)",
 };
+
+export const revalidate = 3600; // ISR: revalidate every hour
 
 export async function generateStaticParams() {
   const stories = await getAllStories();
@@ -65,6 +70,15 @@ export default async function StoryPage({ params }: { params: Promise<{ slug: st
   // Supabase data fetching
   const supabase = await createClient();
   const { userId: clerkUserId } = await auth();
+
+  // Fetch author profile
+  const { data: authorProfile } = await supabase.from("author_profile").select("avatar_url, name").eq("id", 1).single();
+  
+  // Read anonymous ID from cookie (for anon like checks)
+  const cookieStore = await cookies();
+  const anonId = getAnonIdFromCookieHeader(cookieStore.toString());
+  // The liker identity: Clerk user ID if logged in, otherwise anon cookie ID
+  const likerId = clerkUserId || anonId;
   
   // 1. Get story UUID from Supabase
   const { data: dbStory } = await supabase
@@ -83,13 +97,15 @@ export default async function StoryPage({ params }: { params: Promise<{ slug: st
     const { count } = await supabase.from("likes").select("*", { count: "exact", head: true }).eq("story_id", storyId);
     likeCount = count || 0;
   }
+  // Check if current user/anon has liked this story
+  if (likerId && storyId) {
+    const { data: likeData } = await supabase.from("likes").select("liker_id").eq("liker_id", likerId).eq("story_id", storyId).single();
+    initialLiked = !!likeData;
+  }
+  // Check bookmarks (only for logged-in users — anon bookmarks are in localStorage)
   if (clerkUserId && storyId) {
-    const [likeRes, bookmarkRes] = await Promise.all([
-      supabase.from("likes").select("*").eq("user_id", clerkUserId).eq("story_id", storyId).single(),
-      supabase.from("bookmarks").select("*").eq("user_id", clerkUserId).eq("story_id", storyId).single()
-    ]);
-    initialLiked = !!likeRes.data;
-    initialSaved = !!bookmarkRes.data;
+    const { data: bookmarkData } = await supabase.from("bookmarks").select("user_id").eq("user_id", clerkUserId).eq("story_id", storyId).single();
+    initialSaved = !!bookmarkData;
   }
 
   // 3. Get approved comments (plus user's pending comments if logged in)
@@ -130,15 +146,17 @@ export default async function StoryPage({ params }: { params: Promise<{ slug: st
 
         <div className="mt-14">
           <EngagementBar 
-            storyId={storyId} 
+            storyId={storyId}
+            storySlug={slug}
             initialLiked={initialLiked} 
             initialSaved={initialSaved} 
             initialLikeCount={likeCount}
+            commentCount={initialComments.length}
           />
         </div>
       </article>
 
-      <AuthorNote />
+      <AuthorNote avatarUrl={authorProfile?.avatar_url} name={authorProfile?.name} />
       {/* Related Stories */}
       <div className="max-w-4xl mx-auto mt-16 md:mt-24 mb-16 md:mb-24 px-6 md:px-0">
         <RelatedStories currentSlug={slug} allStories={await getAllStories()} />
@@ -184,15 +202,27 @@ function StoryHeader({ story }: { story: StoryData }) {
   );
 }
 
-function AuthorNote() {
+function AuthorNote({ avatarUrl, name = "Abhi" }: { avatarUrl?: string | null; name?: string }) {
   return (
     <section className="bg-paper-card border-y border-border">
       <div className="max-w-2xl mx-auto px-6 md:px-10 py-12 flex items-center gap-5">
-        <div className="w-14 h-14 rounded-full bg-indigo flex items-center justify-center font-display text-xl italic text-paper shrink-0">
-          A
-        </div>
+        {avatarUrl ? (
+          <div className="relative w-14 h-14 rounded-full border border-border overflow-hidden shrink-0">
+            <Image
+              src={avatarUrl}
+              alt={name}
+              fill
+              className="object-cover"
+              sizes="56px"
+            />
+          </div>
+        ) : (
+          <div className="w-14 h-14 rounded-full bg-indigo flex items-center justify-center font-display text-xl italic text-paper shrink-0">
+            {name.charAt(0)}
+          </div>
+        )}
         <div>
-          <p className="text-[13px] text-ink font-ui mb-1">Written by Abhi</p>
+          <p className="text-[13px] text-ink font-ui mb-1">Written by {name}</p>
           <p className="text-[13px] text-ink-muted leading-relaxed font-body">
             Author of Two States, One Heart. Writes about the quiet negotiations
             inside families.

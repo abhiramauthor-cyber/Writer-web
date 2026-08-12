@@ -1,9 +1,15 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useTransition } from "react";
 import { Heart, Bookmark, ArrowRight } from "lucide-react";
 import Link from "next/link";
 import CatalogBadge from "./CatalogBadge";
+import { getOrCreateAnonId } from "@/lib/anonId";
+import { toggleLocalBookmark, isLocallyBookmarked } from "@/lib/bookmarks";
+import { toggleLike, toggleBookmark } from "@/app/actions";
+import { useAuth } from "@clerk/nextjs";
+import { useToast } from "@/components/Toast";
+import { usePathname } from "next/navigation";
 
 export interface StoryData {
   no: string;
@@ -13,6 +19,9 @@ export interface StoryData {
   category: string;
   thread: "indigo" | "marigold" | "rust";
   readTime: string;
+  storyId?: string;
+  initialLiked?: boolean;
+  initialLikeCount?: number;
 }
 
 const threadColorMap: Record<string, string> = {
@@ -28,11 +37,71 @@ const threadTextColorMap: Record<string, string> = {
 };
 
 export default function StoryCard({ story }: { story: StoryData }) {
-  const [liked, setLiked] = useState(false);
+  const { userId } = useAuth();
+  const { showToast } = useToast();
+  const pathname = usePathname();
+  const [liked, setLiked] = useState(story.initialLiked || false);
   const [saved, setSaved] = useState(false);
+  const [likeCount, setLikeCount] = useState(story.initialLikeCount || 0);
+  const [isPending, startTransition] = useTransition();
 
   const threadHex = threadColorMap[story.thread];
   const textHex = threadTextColorMap[story.thread];
+
+  // Check localStorage bookmark on mount (for anon users)
+  useEffect(() => {
+    if (!userId) {
+      setSaved(isLocallyBookmarked(story.slug));
+    }
+  }, [userId, story.slug]);
+
+  const handleLike = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    if (!story.storyId) return;
+
+    const anonId = getOrCreateAnonId();
+    const prevLiked = liked;
+    const prevCount = likeCount;
+    setLiked(!liked);
+    setLikeCount(liked ? Math.max(0, likeCount - 1) : likeCount + 1);
+
+    startTransition(async () => {
+      try {
+        await toggleLike(story.storyId!, prevLiked, pathname, anonId);
+      } catch (err: any) {
+        setLiked(prevLiked);
+        setLikeCount(prevCount);
+        showToast(err.message || "Something went wrong", "error");
+      }
+    });
+  };
+
+  const handleBookmark = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    if (!userId) {
+      // Anonymous: use localStorage
+      const newState = toggleLocalBookmark(story.slug);
+      setSaved(newState);
+      return;
+    }
+
+    // Logged-in: use Supabase
+    if (!story.storyId) return;
+    const prevSaved = saved;
+    setSaved(!saved);
+    startTransition(async () => {
+      try {
+        await toggleBookmark(story.storyId!, prevSaved, pathname);
+      } catch (err: any) {
+        setSaved(prevSaved);
+        showToast(err.message || "Something went wrong", "error");
+      }
+    });
+  };
 
   return (
     <div 
@@ -77,16 +146,23 @@ export default function StoryCard({ story }: { story: StoryData }) {
             Read <ArrowRight size={14} />
           </Link>
           <button
-            onClick={() => setLiked(!liked)}
+            onClick={handleLike}
+            disabled={isPending}
             aria-label="Like story"
-            className={`transition-colors ${
+            className={`relative transition-colors ${
               liked ? "text-rust" : "text-ink-muted hover:text-ink"
             }`}
           >
             <Heart size={15} fill={liked ? "currentColor" : "none"} />
+            {likeCount > 0 && (
+              <span className={`absolute -top-2 -right-3 text-[9px] font-ui px-1 py-0.5 rounded-full ${liked ? 'text-rust' : 'text-ink-muted'}`}>
+                {likeCount}
+              </span>
+            )}
           </button>
           <button
-            onClick={() => setSaved(!saved)}
+            onClick={handleBookmark}
+            disabled={isPending}
             aria-label="Bookmark story"
             className={`transition-colors ${
               saved ? "text-indigo" : "text-ink-muted hover:text-ink"

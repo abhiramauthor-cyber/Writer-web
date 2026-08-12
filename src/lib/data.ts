@@ -4,7 +4,7 @@ import type { StoryData } from "@/components/StoryCard";
 export async function getAllStories(includeDrafts = false): Promise<StoryData[]> {
   let query = supabaseAdmin
     .from("stories")
-    .select("*")
+    .select("*, likes(count)")
     .order("catalog_no", { ascending: false });
 
   if (!includeDrafts) {
@@ -17,16 +17,21 @@ export async function getAllStories(includeDrafts = false): Promise<StoryData[]>
     return [];
   }
 
-  return data.map((story) => ({
-    no: String(story.catalog_no).padStart(3, '0'),
-    slug: story.slug,
-    title: story.title,
-    excerpt: story.excerpt || "",
-    category: story.category,
-    thread: "indigo", // Defaulting, you could store this in DB if needed
-    readTime: `${story.read_time_minutes || 5} min`,
-    publishDate: story.published_at,
-  }));
+  return data.map((story) => {
+    const likeCountObj = Array.isArray(story.likes) ? story.likes[0] : story.likes;
+    return {
+      storyId: story.id,
+      no: String(story.catalog_no).padStart(3, '0'),
+      slug: story.slug,
+      title: story.title,
+      excerpt: story.excerpt || "",
+      category: story.category,
+      thread: "indigo",
+      readTime: `${story.read_time_minutes || 5} min`,
+      publishDate: story.published_at,
+      initialLikeCount: (likeCountObj as any)?.count || 0,
+    };
+  });
 }
 
 export async function getStoryBySlug(slug: string, includeDrafts = false) {

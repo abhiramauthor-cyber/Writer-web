@@ -53,6 +53,34 @@ export default function NavClient({
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
+  // Close mobile nav on route change
+  useEffect(() => {
+    setOpen(false);
+  }, [pathname]);
+
+  // Close mobile nav on scroll (throttled via rAF, 30px delta threshold)
+  useEffect(() => {
+    if (!open) return;
+
+    let lastY = window.scrollY;
+    let ticking = false;
+
+    const onScroll = () => {
+      if (ticking) return;
+      ticking = true;
+      requestAnimationFrame(() => {
+        const delta = Math.abs(window.scrollY - lastY);
+        if (delta > 30) {
+          setOpen(false);
+        }
+        ticking = false;
+      });
+    };
+
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, [open]);
+
   /* ─── Reading-mode nav (story page) ─── */
   if (variant === "reading") {
     return (
@@ -76,8 +104,9 @@ export default function NavClient({
             </svg>
             All stories
           </Link>
-          <Link href="/" className="font-display text-base text-ink">
-            {firstPart} <span className="italic text-indigo">{restPart}</span>
+          <Link href="/" className="font-display text-base text-ink inline-flex items-baseline leading-none">
+            <span>{firstPart}</span>
+            <span className="italic text-indigo ml-1">{restPart}</span>
           </Link>
           {/* Invisible spacer to keep logo centered */}
           <span className="w-[90px]" aria-hidden="true" />
@@ -98,8 +127,9 @@ export default function NavClient({
       }`}
     >
       <div className="max-w-6xl mx-auto px-6 md:px-10 flex items-center justify-between h-20">
-        <Link href="/" className="font-display text-xl text-ink">
-          {firstPart} <span className="italic text-indigo">{restPart}</span>
+        <Link href="/" className="font-display text-xl text-ink inline-flex items-baseline leading-none">
+          <span>{firstPart}</span>
+          <span className="italic text-indigo ml-1.5">{restPart}</span>
         </Link>
 
         <nav className="hidden md:flex items-center gap-10">
