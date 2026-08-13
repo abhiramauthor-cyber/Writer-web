@@ -141,6 +141,7 @@ export default function StoryCard({ story }: { story: StoryData }) {
         <div className="flex items-center gap-4">
           <Link
             href={`/stories/${story.slug}`}
+            aria-label={`Read story: ${story.title}`}
             className="text-[11px] tracking-[0.14em] uppercase text-ink inline-flex items-center gap-2 hover:gap-3 transition-all font-ui"
           >
             Read <ArrowRight size={14} />
@@ -148,7 +149,7 @@ export default function StoryCard({ story }: { story: StoryData }) {
           <button
             onClick={handleLike}
             disabled={isPending}
-            aria-label="Like story"
+            aria-label={`Like story: ${story.title}`}
             className={`relative transition-colors ${
               liked ? "text-rust" : "text-ink-muted hover:text-ink"
             }`}
@@ -163,7 +164,7 @@ export default function StoryCard({ story }: { story: StoryData }) {
           <button
             onClick={handleBookmark}
             disabled={isPending}
-            aria-label="Bookmark story"
+            aria-label={`Bookmark story: ${story.title}`}
             className={`transition-colors ${
               saved ? "text-indigo" : "text-ink-muted hover:text-ink"
             }`}

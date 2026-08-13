@@ -1,3 +1,4 @@
+import { unstable_cache } from "next/cache";
 import { supabaseAdmin } from "./supabase/admin";
 import type { StoryData } from "@/components/StoryCard";
 
@@ -79,3 +80,94 @@ export async function getPageContent(slug: string) {
   }
   return data.content;
 }
+
+/* ─── Cached Getters for High-Speed Performance (ISR/revalidate) ─── */
+
+export const getSiteSettingsCached = unstable_cache(
+  async () => {
+    const { data } = await supabaseAdmin.from("site_settings").select("*").eq("id", 1).single();
+    return data;
+  },
+  ["site-settings"],
+  { revalidate: 3600, tags: ["site-settings"] }
+);
+
+export const getPageHeroCached = unstable_cache(
+  async (slug: string) => {
+    const { data } = await supabaseAdmin.from("page_hero").select("*").eq("slug", slug).single();
+    return data;
+  },
+  ["page-hero"],
+  { revalidate: 3600, tags: ["page-hero"] }
+);
+
+export const getBookDetailsCached = unstable_cache(
+  async () => {
+    const { data } = await supabaseAdmin.from("book_details").select("*").eq("id", 1).single();
+    return data;
+  },
+  ["book-details"],
+  { revalidate: 3600, tags: ["book-details"] }
+);
+
+export const getAuthorProfileCached = unstable_cache(
+  async () => {
+    const { data } = await supabaseAdmin.from("author_profile").select("*").eq("id", 1).single();
+    return data;
+  },
+  ["author-profile"],
+  { revalidate: 3600, tags: ["author-profile"] }
+);
+
+export const getJourneyItemsCached = unstable_cache(
+  async () => {
+    const { data } = await supabaseAdmin.from("journey_items").select("*").order("sort_order", { ascending: true });
+    return data || [];
+  },
+  ["journey-items"],
+  { revalidate: 3600, tags: ["journey-items"] }
+);
+
+export const getAchievementsCached = unstable_cache(
+  async () => {
+    const { data } = await supabaseAdmin.from("achievements").select("*").order("sort_order", { ascending: true });
+    return data || [];
+  },
+  ["achievements"],
+  { revalidate: 3600, tags: ["achievements"] }
+);
+
+export const getReviewsCached = unstable_cache(
+  async () => {
+    const { data } = await supabaseAdmin.from("reviews").select("*").order("sort_order", { ascending: true });
+    return data || [];
+  },
+  ["reviews"],
+  { revalidate: 3600, tags: ["reviews"] }
+);
+
+export const getBuyLinksCached = unstable_cache(
+  async () => {
+    const { data } = await supabaseAdmin.from("buy_links").select("*").order("sort_order", { ascending: true });
+    return data || [];
+  },
+  ["buy-links"],
+  { revalidate: 3600, tags: ["buy-links"] }
+);
+
+export const getAllStoriesCached = unstable_cache(
+  async () => {
+    return getAllStories(false);
+  },
+  ["all-stories"],
+  { revalidate: 3600, tags: ["stories"] }
+);
+
+export const getStoryBySlugCached = unstable_cache(
+  async (slug: string) => {
+    return getStoryBySlug(slug, false);
+  },
+  ["story-by-slug"],
+  { revalidate: 3600, tags: ["stories"] }
+);
+

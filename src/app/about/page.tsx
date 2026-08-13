@@ -3,9 +3,9 @@ import Link from "next/link";
 import Image from "next/image";
 import Nav from "@/components/Nav";
 import Footer from "@/components/Footer";
-import { createClient } from "@/lib/supabase/server";
 import IkatDivider from "@/components/IkatDivider";
 import ContactForm from "@/components/ContactForm";
+import { getPageHeroCached, getAuthorProfileCached, getJourneyItemsCached, getAchievementsCached, getSiteSettingsCached } from "@/lib/data";
 import type { Metadata } from "next";
 
 export const revalidate = 3600; // ISR: revalidate every hour
@@ -16,13 +16,11 @@ export const metadata: Metadata = {
 };
 
 export default async function AboutPage() {
-  const supabase = await createClient();
-  
-  const { data: hero } = await supabase.from("page_hero").select("*").eq("slug", "about").single();
-  const { data: author } = await supabase.from("author_profile").select("*").eq("id", 1).single();
-  const { data: journey } = await supabase.from("journey_items").select("*").order("sort_order", { ascending: true });
-  const { data: achievements } = await supabase.from("achievements").select("*").order("sort_order", { ascending: true });
-  const { data: settings } = await supabase.from('site_settings').select('*').eq('id', 1).single();
+  const hero = await getPageHeroCached("about");
+  const author = await getAuthorProfileCached();
+  const journey = await getJourneyItemsCached();
+  const achievements = await getAchievementsCached();
+  const settings = await getSiteSettingsCached();
 
   return (
     <>

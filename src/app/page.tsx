@@ -7,8 +7,7 @@ import IkatDivider from "@/components/IkatDivider";
 import Stamp from "@/components/Stamp";
 import StoryCard from "@/components/StoryCard";
 import Newsletter from "@/components/Newsletter";
-import { getAllStories } from "@/lib/data";
-import { createClient } from "@/lib/supabase/server";
+import { getAllStoriesCached, getPageHeroCached, getBookDetailsCached, getSiteSettingsCached } from "@/lib/data";
 import type { Metadata } from "next";
 
 export const revalidate = 3600; // ISR: revalidate every hour
@@ -18,13 +17,12 @@ export const metadata: Metadata = {
 };
 
 export default async function Home() {
-  const supabase = await createClient();
-  const allStories = await getAllStories();
+  const allStories = await getAllStoriesCached();
   const stories = allStories.slice(0, 3); // Get latest 3 stories
   
-  const { data: hero } = await supabase.from("page_hero").select("*").eq("slug", "home").single();
-  const { data: bookDetails } = await supabase.from("book_details").select("*").eq("id", 1).single();
-  const { data: settings } = await supabase.from("site_settings").select("stamp_est_year, newsletter_heading, newsletter_body").eq("id", 1).single();
+  const hero = await getPageHeroCached("home");
+  const bookDetails = await getBookDetailsCached();
+  const settings = await getSiteSettingsCached();
 
   return (
     <>

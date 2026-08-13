@@ -2,8 +2,7 @@ import Nav from "@/components/Nav";
 import Footer from "@/components/Footer";
 import Newsletter from "@/components/Newsletter";
 import StoriesClient from "./StoriesClient";
-import { getAllStories } from "@/lib/data";
-import { createClient } from "@/lib/supabase/server";
+import { getAllStoriesCached, getPageHeroCached, getSiteSettingsCached } from "@/lib/data";
 import type { Metadata } from "next";
 
 export const revalidate = 3600; // ISR: revalidate every hour
@@ -14,10 +13,9 @@ export const metadata: Metadata = {
 };
 
 export default async function StoriesIndexPage() {
-  const stories = await getAllStories();
-  const supabase = await createClient();
-  const { data: hero } = await supabase.from("page_hero").select("*").eq("slug", "stories").single();
-  const { data: settings } = await supabase.from("site_settings").select("newsletter_heading, newsletter_body").eq("id", 1).single();
+  const stories = await getAllStoriesCached();
+  const hero = await getPageHeroCached("stories");
+  const settings = await getSiteSettingsCached();
 
   return (
     <>

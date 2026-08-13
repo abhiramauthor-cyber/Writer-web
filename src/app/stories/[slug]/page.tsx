@@ -10,7 +10,7 @@ import ReadingProgress from "@/components/ReadingProgress";
 import EngagementBar from "@/components/EngagementBar";
 import StoryMinimalFooter from "@/components/StoryMinimalFooter";
 import Comments, { type CommentData } from "@/components/Comments";
-import { getStoryBySlug, getAllStories } from "@/lib/data";
+import { getStoryBySlugCached, getAllStoriesCached, getAuthorProfileCached } from "@/lib/data";
 import type { StoryData } from "@/components/StoryCard";
 import { createClient } from "@/lib/supabase/server";
 import { auth } from "@clerk/nextjs/server";
@@ -30,7 +30,7 @@ const threadColorMap: Record<string, string> = {
 export const revalidate = 3600; // ISR: revalidate every hour
 
 export async function generateStaticParams() {
-  const stories = await getAllStories();
+  const stories = await getAllStoriesCached();
   return stories.map((story) => ({
     slug: story.slug,
   }));
@@ -38,7 +38,7 @@ export async function generateStaticParams() {
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
-  const storyData = await getStoryBySlug(slug);
+  const storyData = await getStoryBySlugCached(slug);
 
   if (!storyData) {
     return {};
@@ -59,7 +59,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 
 export default async function StoryPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
-  const storyData = await getStoryBySlug(slug);
+  const storyData = await getStoryBySlugCached(slug);
 
   if (!storyData) {
     notFound();
@@ -72,7 +72,7 @@ export default async function StoryPage({ params }: { params: Promise<{ slug: st
   const { userId: clerkUserId } = await auth();
 
   // Fetch author profile
-  const { data: authorProfile } = await supabase.from("author_profile").select("avatar_url, name").eq("id", 1).single();
+  const authorProfile = await getAuthorProfileCached();
   
   // Read anonymous ID from cookie (for anon like checks)
   const cookieStore = await cookies();
@@ -159,7 +159,7 @@ export default async function StoryPage({ params }: { params: Promise<{ slug: st
       <AuthorNote avatarUrl={authorProfile?.avatar_url} name={authorProfile?.name} />
       {/* Related Stories */}
       <div className="max-w-4xl mx-auto mt-16 md:mt-24 mb-16 md:mb-24 px-6 md:px-0">
-        <RelatedStories currentSlug={slug} allStories={await getAllStories()} />
+        <RelatedStories currentSlug={slug} allStories={await getAllStoriesCached()} />
       </div>
       <Comments storyId={storyId} initialComments={initialComments} isLoggedIn={!!clerkUserId} />
       <StoryMinimalFooter />

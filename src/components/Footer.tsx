@@ -1,10 +1,8 @@
 import Link from "next/link";
-
-import { createClient } from "@/lib/supabase/server";
+import { getSiteSettingsCached } from "@/lib/data";
 
 export default async function Footer() {
-  const supabase = await createClient();
-  const { data: settings } = await supabase.from('site_settings').select('*').eq('id', 1).single();
+  const settings = await getSiteSettingsCached();
 
   const siteName = settings?.site_name || "Writer Lokam";
   const nameParts = siteName.split(" ");
@@ -12,10 +10,10 @@ export default async function Footer() {
   const restPart = nameParts.slice(1).join(" ");
 
   return (
-    <footer className="bg-paper">
+    <footer className="bg-paper" role="contentinfo">
       <div className="max-w-6xl mx-auto px-6 md:px-10 py-14 flex flex-col md:flex-row justify-between gap-8">
         <div>
-          <Link href="/" className="font-display text-lg text-ink mb-2 inline-flex items-baseline leading-none">
+          <Link href="/" aria-label="Writer Lokam Home" className="font-display text-lg text-ink mb-2 inline-flex items-baseline leading-none">
             <span>{firstPart}</span>
             <span className="italic text-indigo ml-1.5">{restPart}</span>
           </Link>

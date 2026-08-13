@@ -4,31 +4,46 @@ import { createClient } from "@supabase/supabase-js";
 
 const isProtectedRoute = createRouteMatcher(["/admin(.*)"]);
 
+let cachedMaintenanceMode = false;
+let lastCheckTime = 0;
+const CACHE_TTL_MS = 60_000; // 60 seconds
+
 export default clerkMiddleware(async (auth, req) => {
   if (isProtectedRoute(req)) {
     await auth.protect();
   }
 
-  // Maintenance mode check
-  if (!req.nextUrl.pathname.startsWith("/admin") && !req.nextUrl.pathname.startsWith("/sign-in")) {
-    const supabase = createClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-    );
-    const { data: settings } = await supabase
-      .from("site_settings")
-      .select("is_maintenance_mode")
-      .eq("id", 1)
-      .single();
+  // Maintenance mode check with in-memory caching
+  const pathname = req.nextUrl.pathname;
+  if (!pathname.startsWith("/admin") && !pathname.startsWith("/sign-in") && !pathname.startsWith("/api")) {
+    const now = Date.now();
+    if (now - lastCheckTime > CACHE_TTL_MS) {
+      try {
+        const supabase = createClient(
+          process.env.NEXT_PUBLIC_SUPABASE_URL!,
+          process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+        );
+        const { data: settings } = await supabase
+          .from("site_settings")
+          .select("is_maintenance_mode")
+          .eq("id", 1)
+          .single();
 
-    if (settings?.is_maintenance_mode) {
-      if (req.nextUrl.pathname !== "/maintenance") {
+        cachedMaintenanceMode = !!settings?.is_maintenance_mode;
+        lastCheckTime = now;
+      } catch {
+        // Fallback to cached state on error
+      }
+    }
+
+    if (cachedMaintenanceMode) {
+      if (pathname !== "/maintenance") {
         const url = req.nextUrl.clone();
         url.pathname = "/maintenance";
         return NextResponse.redirect(url);
       }
     } else {
-      if (req.nextUrl.pathname === "/maintenance") {
+      if (pathname === "/maintenance") {
         const url = req.nextUrl.clone();
         url.pathname = "/";
         return NextResponse.redirect(url);

@@ -5,8 +5,8 @@ import Nav from "@/components/Nav";
 import Footer from "@/components/Footer";
 import IkatDivider from "@/components/IkatDivider";
 import BuySection from "./BuySection";
+import { getPageHeroCached, getBookDetailsCached, getAuthorProfileCached, getReviewsCached, getBuyLinksCached } from "@/lib/data";
 import type { Metadata } from "next";
-import { createClient } from "@/lib/supabase/server";
 
 export const revalidate = 3600; // ISR: revalidate every hour
 
@@ -16,13 +16,11 @@ export const metadata: Metadata = {
 };
 
 export default async function BookPage() {
-  const supabase = await createClient();
-  
-  const { data: hero } = await supabase.from("page_hero").select("*").eq("slug", "book").single();
-  const { data: details } = await supabase.from("book_details").select("*").eq("id", 1).single();
-  const { data: author } = await supabase.from("author_profile").select("*").eq("id", 1).single();
-  const { data: reviews } = await supabase.from("reviews").select("*").order("sort_order", { ascending: true });
-  const { data: buyLinks } = await supabase.from("buy_links").select("*").order("sort_order", { ascending: true });
+  const hero = await getPageHeroCached("book");
+  const details = await getBookDetailsCached();
+  const author = await getAuthorProfileCached();
+  const reviews = await getReviewsCached();
+  const buyLinks = await getBuyLinksCached();
 
   return (
     <>

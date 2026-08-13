@@ -2,10 +2,10 @@ import type { Metadata } from "next";
 import { spectral, literata, workSans } from "./fonts";
 import "./globals.css";
 
-import { supabaseAdmin } from "@/lib/supabase/admin";
+import { getSiteSettingsCached } from "@/lib/data";
 
 export async function generateMetadata(): Promise<Metadata> {
-  const { data: settings } = await supabaseAdmin.from("site_settings").select("*").eq("id", 1).single();
+  const settings = await getSiteSettingsCached();
 
   return {
     metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || "https://writerlokam.com"),
@@ -49,10 +49,16 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         lang="en"
         className={`${spectral.variable} ${literata.variable} ${workSans.variable} h-full`}
       >
+        <head>
+          <link rel="preconnect" href="https://uqwrodiiwdooqdfcvoky.supabase.co" crossOrigin="anonymous" />
+          <link rel="dns-prefetch" href="https://uqwrodiiwdooqdfcvoky.supabase.co" />
+        </head>
         <body className="min-h-full flex flex-col bg-paper text-ink antialiased bg-grain">
           <ToastProvider>
             <BookmarkSyncProvider>
-              {children}
+              <main id="main-content" className="flex-1 flex flex-col">
+                {children}
+              </main>
             </BookmarkSyncProvider>
           </ToastProvider>
           <Analytics />
