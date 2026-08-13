@@ -1,5 +1,3 @@
-"use client";
-
 import { useId } from "react";
 
 type IkatTone = "mixed" | "indigo" | "marigold" | "rust";

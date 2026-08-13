@@ -36,9 +36,19 @@ const threadTextColorMap: Record<string, string> = {
   rust: "var(--color-rust-text)",
 };
 
-export default function StoryCard({ story, userId: propUserId }: { story: StoryData; userId?: string | null }) {
-  const clerkAuth = useAuth();
-  const userId = propUserId !== undefined ? propUserId : clerkAuth.userId;
+export default function StoryCard(props: { story: StoryData; userId?: string | null }) {
+  if (props.userId !== undefined) {
+    return <StoryCardInner story={props.story} userId={props.userId} />;
+  }
+  return <StoryCardWithAuth story={props.story} />;
+}
+
+function StoryCardWithAuth({ story }: { story: StoryData }) {
+  const { userId } = useAuth();
+  return <StoryCardInner story={story} userId={userId} />;
+}
+
+function StoryCardInner({ story, userId }: { story: StoryData; userId?: string | null }) {
   const { showToast } = useToast();
   const pathname = usePathname();
   const [liked, setLiked] = useState(story.initialLiked || false);

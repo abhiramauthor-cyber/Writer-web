@@ -1,13 +1,8 @@
-import Stamp from "@/components/Stamp";
-
 export default function Loading() {
   return (
-    <div className="fixed inset-0 bg-paper z-50 flex items-center justify-center animate-fade-in">
-      <div className="flex flex-col items-center">
-        <div className="w-16 h-16 md:w-20 md:h-20 opacity-80 animate-spin-slow">
-          <Stamp />
-        </div>
-      </div>
+    <div className="fixed top-0 left-0 right-0 z-50 h-1 bg-indigo/20 overflow-hidden">
+      <div className="h-full bg-indigo animate-pulse w-full origin-left transform" />
     </div>
   );
 }
+

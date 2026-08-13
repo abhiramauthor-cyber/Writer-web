@@ -1,5 +1,6 @@
-chrome >= 90
-firefox >= 88
-safari >= 14
-edge >= 90
-ios >= 14
+chrome >= 105
+firefox >= 105
+safari >= 15.4
+edge >= 105
+ios >= 15.4
+
