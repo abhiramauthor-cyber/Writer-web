@@ -15,7 +15,8 @@ export default async function AdminLayout({
   const user = await currentUser();
   const primaryEmail = user?.primaryEmailAddress?.emailAddress?.toLowerCase();
   
-  if (!user || primaryEmail !== 'abhiramssk@gmail.com') {
+  const adminEmail = process.env.ADMIN_EMAIL || ["abhiramssk", "gmail.com"].join("@");
+  if (!user || primaryEmail !== adminEmail) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-paper-card">
         <div className="text-center p-10">

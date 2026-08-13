@@ -8,7 +8,7 @@ export async function generateMetadata(): Promise<Metadata> {
   const settings = await getSiteSettingsCached();
 
   return {
-    metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || "https://writerlokam.com"),
+    metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || "https://writerlokam.in"),
     title: {
       default: `${settings?.site_name || "Writer Lokam"} — ${settings?.tagline || "Original Short Fiction"}`,
       template: `%s · ${settings?.site_name || "Writer Lokam"}`,
@@ -44,15 +44,11 @@ import { BookmarkSyncProvider } from "@/components/BookmarkSync";
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <ClerkProvider>
+    <ClerkProvider telemetry={false}>
       <html
         lang="en"
         className={`${spectral.variable} ${literata.variable} ${workSans.variable} h-full`}
       >
-        <head>
-          <link rel="preconnect" href="https://uqwrodiiwdooqdfcvoky.supabase.co" crossOrigin="anonymous" />
-          <link rel="dns-prefetch" href="https://uqwrodiiwdooqdfcvoky.supabase.co" />
-        </head>
         <body className="min-h-full flex flex-col bg-paper text-ink antialiased bg-grain">
           <ToastProvider>
             <BookmarkSyncProvider>

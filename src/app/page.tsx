@@ -53,10 +53,10 @@ function Hero({ hero, estYear }: { hero: any; estYear?: string }) {
     <section className="max-w-6xl mx-auto px-6 md:px-10 pt-16 md:pt-24 pb-16">
       <div className="grid md:grid-cols-[1fr_auto] gap-10 items-start">
         <div>
-          <p className="text-[11px] tracking-[0.24em] uppercase text-indigo mb-6 font-ui opacity-0 animate-fade-in-up">
+          <p className="text-[11px] tracking-[0.24em] uppercase text-indigo mb-6 font-ui">
             {eyebrow}
           </p>
-          <h1 className="font-display text-ink leading-[0.95] text-[54px] sm:text-[76px] md:text-[92px] opacity-0 animate-fade-in-up-delay-1">
+          <h1 className="font-display text-ink leading-[0.95] text-[54px] sm:text-[76px] md:text-[92px]">
             {restPart ? (
               <>
                 {firstPart}
@@ -68,17 +68,17 @@ function Hero({ hero, estYear }: { hero: any; estYear?: string }) {
             )}
           </h1>
           {subheading && (
-            <p className="mt-8 font-display italic text-xl md:text-2xl text-ink-soft max-w-lg opacity-0 animate-fade-in-up-delay-2">
+            <p className="mt-8 font-display italic text-xl md:text-2xl text-ink-soft max-w-lg">
               {subheading}
             </p>
           )}
           {body && (
-            <p className="mt-4 text-[15px] text-nav-muted max-w-md leading-relaxed font-body whitespace-pre-wrap opacity-0 animate-fade-in-up-delay-2">
+            <p className="mt-4 text-[15px] text-nav-muted max-w-md leading-relaxed font-body whitespace-pre-wrap">
               {body}
             </p>
           )}
 
-          <div className="mt-10 flex flex-wrap gap-4 opacity-0 animate-fade-in-up-delay-2">
+          <div className="mt-10 flex flex-wrap gap-4">
             <Link
               href={hero?.cta_primary_href || "/stories"}
               className="bg-ink text-paper text-[11px] tracking-[0.18em] uppercase px-7 py-4 hover:bg-indigo transition-colors font-ui"
@@ -133,7 +133,7 @@ function Stories({ stories }: { stories: StoryData[] }) {
 
       <div className="grid md:grid-cols-3 gap-6">
         {stories.map((s) => (
-          <StoryCard key={s.no} story={s} />
+          <StoryCard key={s.no} story={s} userId={null} />
         ))}
       </div>
     </section>

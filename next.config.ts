@@ -11,6 +11,10 @@ const nextConfig: NextConfig = {
     ],
     formats: ["image/avif", "image/webp"],
   },
+  compress: true,
+  compiler: {
+    removeConsole: process.env.NODE_ENV === "production" ? { exclude: ["error"] } : false,
+  },
   experimental: {
     optimizePackageImports: ["lucide-react", "@clerk/nextjs"],
   },

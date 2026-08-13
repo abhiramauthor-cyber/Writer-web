@@ -23,7 +23,8 @@ export default async function Nav(props: NavProps) {
   let isAdmin = false;
   if (userId) {
     const user = await currentUser();
-    isAdmin = user?.primaryEmailAddress?.emailAddress?.toLowerCase() === "abhiramssk@gmail.com";
+    const adminEmail = process.env.ADMIN_EMAIL || ["abhiramssk", "gmail.com"].join("@");
+    isAdmin = user?.primaryEmailAddress?.emailAddress?.toLowerCase() === adminEmail;
   }
 
   return <NavClient {...props} siteName={settings?.site_name || "Writer Lokam"} isAdmin={isAdmin} />;

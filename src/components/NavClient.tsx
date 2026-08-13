@@ -4,7 +4,18 @@ import { useState, useEffect } from "react";
 import { Menu, X } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useAuth, UserButton, SignInButton } from "@clerk/nextjs";
+import { useAuth } from "@clerk/nextjs";
+import dynamic from "next/dynamic";
+
+const UserButton = dynamic(
+  () => import("@clerk/nextjs").then((mod) => mod.UserButton),
+  { ssr: false }
+);
+
+const SignInButton = dynamic(
+  () => import("@clerk/nextjs").then((mod) => mod.SignInButton),
+  { ssr: false }
+);
 
 interface NavCta {
   label: string;

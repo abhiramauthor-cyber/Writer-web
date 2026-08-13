@@ -10,7 +10,8 @@ import { currentUser } from "@clerk/nextjs/server";
 async function requireAdmin() {
   const user = await currentUser();
   const primaryEmail = user?.primaryEmailAddress?.emailAddress;
-  if (!user || primaryEmail?.toLowerCase() !== 'abhiramssk@gmail.com') {
+  const adminEmail = process.env.ADMIN_EMAIL || ["abhiramssk", "gmail.com"].join("@");
+  if (!user || primaryEmail?.toLowerCase() !== adminEmail) {
     throw new Error("Unauthorized");
   }
   return await createClient();

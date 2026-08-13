@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import { useAuth } from "@clerk/nextjs";
 import { getLocalBookmarks, clearLocalBookmarks } from "@/lib/bookmarks";
 
 /**
@@ -10,11 +9,10 @@ import { getLocalBookmarks, clearLocalBookmarks } from "@/lib/bookmarks";
  * (one-time migration), then clears localStorage.
  */
 export function BookmarkSyncProvider({ children }: { children: React.ReactNode }) {
-  const { isSignedIn } = useAuth();
   const hasMerged = useRef(false);
 
   useEffect(() => {
-    if (!isSignedIn || hasMerged.current) return;
+    if (hasMerged.current) return;
 
     const localBookmarks = getLocalBookmarks();
     if (localBookmarks.length === 0) {
@@ -22,7 +20,7 @@ export function BookmarkSyncProvider({ children }: { children: React.ReactNode }
       return;
     }
 
-    // Merge local bookmarks into server
+    // Merge local bookmarks into server if local bookmarks exist
     fetch("/api/bookmarks/merge", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -39,7 +37,7 @@ export function BookmarkSyncProvider({ children }: { children: React.ReactNode }
       .finally(() => {
         hasMerged.current = true;
       });
-  }, [isSignedIn]);
+  }, []);
 
   return <>{children}</>;
 }
