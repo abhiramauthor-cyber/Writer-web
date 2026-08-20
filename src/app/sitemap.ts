@@ -2,7 +2,7 @@ import type { MetadataRoute } from "next";
 import { getAllStories } from "@/lib/data";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://writerlokam.com";
+  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://writerlokam.in";
 
   // Static routes
   const routes = ["", "/about", "/book", "/stories"].map((route) => ({

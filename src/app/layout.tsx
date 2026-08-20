@@ -29,6 +29,13 @@ export async function generateMetadata(): Promise<Metadata> {
       description: settings?.meta_description || "A reading room of original fiction about love, memory, hope, and longing.",
       images: settings?.og_image_url ? [settings.og_image_url] : [],
     },
+    icons: {
+      icon: [
+        { url: "/icon.svg", type: "image/svg+xml" },
+        { url: "/icon.png", type: "image/png" },
+      ],
+      apple: [{ url: "/apple-icon.png" }],
+    },
     robots: {
       index: true,
       follow: true,

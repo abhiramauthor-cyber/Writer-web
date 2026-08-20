@@ -13,7 +13,10 @@ import type { Metadata } from "next";
 export const revalidate = 3600; // ISR: revalidate every hour
 
 export const metadata: Metadata = {
-  title: "Home",
+  title: {
+    absolute: "Writer Lokam — Original Short Fiction",
+  },
+  description: "A reading room of original fiction about love, memory, hope, and longing.",
 };
 
 export default async function Home() {
