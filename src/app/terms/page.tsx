@@ -14,7 +14,7 @@ export const metadata: Metadata = {
 
 export default async function TermsPage() {
   const settings = await getSiteSettingsCached();
-  const contactEmail = settings?.social_email || "pvtly.abhi@gmail.com";
+  const contactEmail = settings?.social_email || "hello@writerlokam.in";
 
   return (
     <>
