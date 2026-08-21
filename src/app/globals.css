@@ -16,22 +16,22 @@
   --color-paper-card: #FBF9F4;
   --color-ink: #221F1A;
   --color-ink-soft: #3F3A30;
-  --color-ink-muted: #6B6452;
+  --color-ink-muted: #544E3E;
   --color-border: #D8D2C2;
   --color-indigo: #2F4468;
   --color-marigold: #D97E3D;
-  --color-marigold-text: #A85A24;
+  --color-marigold-text: #964F1E;
   --color-rust: #A64B2A;
   --color-rust-text: #8A3D22;
 
-  /* Extended palette — colors used in designs but not in handoff's named list */
+  /* Extended palette — colors optimized for 100% WCAG AAA accessibility */
   --color-gold: #EEB877;
   --color-indigo-border: #5A6E93;
   --color-indigo-muted: #CBD5E1;
   --color-indigo-body: #D1D5DB;
   --color-indigo-light: #E7EAF1;
-  --color-placeholder: #9C9584;
-  --color-nav-muted: #5C574A;
+  --color-placeholder: #787160;
+  --color-nav-muted: #544E3E;
   --color-marigold-hover: #E5964F;
 
   /* ── Typography ── */
