@@ -38,7 +38,7 @@ export default async function PrivacyPage() {
           <section>
             <h2 className="font-display text-2xl text-ink mb-4">1. Overview</h2>
             <p>
-              Welcome to <strong>Writer Lokam</strong> (writerlokam.in), a digital reading room and personal literary platform operated by author Abhiram R. Your privacy is deeply important to us. This Privacy Policy explains what information we collect when you visit our website, subscribe to our newsletter, submit a contact form, or create an account, as well as how that data is used, stored, and protected.
+              Welcome to <strong className="whitespace-nowrap">Writer Lokam</strong> (writerlokam.in), a digital reading room and personal literary platform operated by author <span className="whitespace-nowrap font-medium text-ink">Abhiram R</span>. Your privacy is deeply important to us. This Privacy Policy explains what information we collect when you visit our website, subscribe to our newsletter, submit a contact form, or create an account, as well as how that data is used, stored, and protected.
             </p>
           </section>
 

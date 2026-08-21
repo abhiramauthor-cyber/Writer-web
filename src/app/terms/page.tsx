@@ -38,17 +38,25 @@ export default async function TermsPage() {
           <section>
             <h2 className="font-display text-2xl text-ink mb-4">1. Agreement to Terms</h2>
             <p>
-              By accessing or using <strong>Writer Lokam</strong> (writerlokam.in), you agree to be bound by these Terms of Service. If you do not agree to these terms, please do not use our website.
+              By accessing or using <strong className="whitespace-nowrap">Writer Lokam</strong> (writerlokam.in), you agree to be bound by these Terms of Service. If you do not agree to these terms, please do not use our website.
             </p>
           </section>
 
           <section>
             <h2 className="font-display text-2xl text-ink mb-4">2. Intellectual Property Rights</h2>
             <p>
-              All content published on this website—including but not limited to original short stories, essays, book chapters, poetry, artwork, design elements, logos, and custom typography—is the exclusive intellectual property of <strong>Abhiram R</strong> / <strong>Writer Lokam</strong>, protected by applicable copyright and trademark laws.
+              All content published on this website—including but not limited to original short stories, essays, book chapters, poetry, artwork, design elements, logos, and custom typography—is the exclusive intellectual property of{" "}
+              <span className="inline-block font-semibold text-ink">
+                <span className="whitespace-nowrap">Abhiram R</span> / <span className="whitespace-nowrap">Writer Lokam</span>
+              </span>
+              , protected by applicable copyright and trademark laws.
             </p>
             <p className="mt-3">
-              You may read, share links to, and excerpt small quotes from our stories for personal or non-commercial review purposes provided clear attribution and a link back to <code>writerlokam.in</code> are included. Full reproduction, redistribution, or commercial exploitation without prior written consent is strictly prohibited.
+              You may read, share links to, and excerpt small quotes from our stories for personal or non-commercial review purposes provided clear attribution and a link back to{" "}
+              <Link href="/" className="text-indigo hover:underline font-medium whitespace-nowrap">
+                writerlokam.in
+              </Link>{" "}
+              are included. Full reproduction, redistribution, or commercial exploitation without prior written consent is strictly prohibited.
             </p>
           </section>
 
