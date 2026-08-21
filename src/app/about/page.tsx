@@ -64,14 +64,21 @@ export default async function AboutPage() {
 function AboutHero({ hero, author }: { hero: any, author: any }) {
   const imageUrl = hero?.image_url || author?.avatar_url;
   const eyebrow = hero?.eyebrow || "Card No. 000 · The Author";
-  const heading = hero?.heading || `Hi, I'm ${author?.name || "Abhi"}`;
-  const body = hero?.body || "I write stories about the quiet negotiations inside families — the ones that happen over dinner, in two languages, when love has to make room for everyone at the table.";
+  const authorName = author?.name || "Abhiram R";
+  const fullHeading = hero?.heading || `Hi, I'm ${authorName}`;
+  const body = hero?.body || "I write stories about love, memory, distance, and the moments that quietly change us—stories about people we meet by chance, feelings we never expect, and the memories that stay long after the moment is gone.";
   
-  // Format the heading so the last word is italic marigold-text if it matches pattern.
-  // Actually, we can just render the heading exactly. Or if we want to mimic the old design "Hi, I'm Abhi":
-  const words = heading.split(" ");
-  const lastWord = words.pop();
-  const restOfHeading = words.join(" ");
+  let prefix = "";
+  let highlightedPart = fullHeading;
+
+  if (fullHeading.startsWith("Hi, I'm ")) {
+    prefix = "Hi, I'm ";
+    highlightedPart = fullHeading.slice(8);
+  } else if (authorName && fullHeading.includes(authorName)) {
+    const idx = fullHeading.indexOf(authorName);
+    prefix = fullHeading.slice(0, idx);
+    highlightedPart = fullHeading.slice(idx);
+  }
 
   return (
     <section className="max-w-6xl mx-auto px-6 md:px-10 pt-16 md:pt-20 pb-16">
@@ -89,7 +96,7 @@ function AboutHero({ hero, author }: { hero: any, author: any }) {
           </div>
         ) : (
           <div className="w-28 h-28 md:w-36 md:h-36 rounded-full bg-indigo flex items-center justify-center font-display text-5xl italic text-paper shrink-0 mx-auto md:mx-0">
-            {author?.name?.charAt(0) || "A"}
+            {authorName.charAt(0)}
           </div>
         )}
         <div>
@@ -97,7 +104,7 @@ function AboutHero({ hero, author }: { hero: any, author: any }) {
             {eyebrow}
           </p>
           <h1 className="font-display text-ink leading-[0.98] text-[44px] sm:text-[56px] md:text-[64px]">
-            {restOfHeading} <span className="italic text-marigold-text">{lastWord}</span>
+            {prefix}{highlightedPart && <span className="italic text-marigold-text">{highlightedPart}</span>}
           </h1>
           <p className="mt-6 text-[15.5px] text-ink-soft leading-relaxed max-w-lg font-body whitespace-pre-wrap">
             {body}
@@ -191,16 +198,16 @@ function SocialLinks({ settings }: { settings: any }) {
         <h2 className="font-display text-3xl md:text-4xl text-ink mb-10">
           Stay connected
         </h2>
-        <div className="max-w-md mx-auto grid grid-cols-2 md:grid-cols-3 gap-6">
+        <div className="max-w-xl mx-auto grid grid-cols-3 gap-3 sm:gap-6">
           {/* Instagram */}
           <a
             href={settings?.social_instagram_url || "https://instagram.com"}
             target="_blank"
             rel="noopener noreferrer"
-            className="flex flex-col items-center justify-center p-8 border border-border bg-paper hover:bg-paper-card hover:-translate-y-1 hover:shadow-xl hover:shadow-ink/5 transition-all duration-500 group"
+            className="flex flex-col items-center justify-center p-4 sm:p-8 border border-border bg-paper hover:bg-paper-card hover:-translate-y-1 hover:shadow-xl hover:shadow-ink/5 transition-all duration-500 group"
           >
-            <Instagram size={24} className="text-ink-muted group-hover:text-indigo transition-colors mb-4" />
-            <span className="font-ui text-[11px] tracking-widest uppercase text-ink-muted group-hover:text-ink transition-colors">
+            <Instagram size={24} className="text-ink-muted group-hover:text-indigo transition-colors mb-3 sm:mb-4" />
+            <span className="font-ui text-[10px] sm:text-[11px] tracking-wider sm:tracking-widest uppercase text-ink-muted group-hover:text-ink transition-colors whitespace-nowrap">
               Instagram
             </span>
           </a>
@@ -210,10 +217,10 @@ function SocialLinks({ settings }: { settings: any }) {
             href={settings?.social_twitter_url || "https://twitter.com"}
             target="_blank"
             rel="noopener noreferrer"
-            className="flex flex-col items-center justify-center p-8 border border-border bg-paper hover:bg-paper-card hover:-translate-y-1 hover:shadow-xl hover:shadow-ink/5 transition-all duration-500 group"
+            className="flex flex-col items-center justify-center p-4 sm:p-8 border border-border bg-paper hover:bg-paper-card hover:-translate-y-1 hover:shadow-xl hover:shadow-ink/5 transition-all duration-500 group"
           >
-            <Twitter size={24} className="text-ink-muted group-hover:text-indigo transition-colors mb-4" />
-            <span className="font-ui text-[11px] tracking-widest uppercase text-ink-muted group-hover:text-ink transition-colors">
+            <Twitter size={24} className="text-ink-muted group-hover:text-indigo transition-colors mb-3 sm:mb-4" />
+            <span className="font-ui text-[10px] sm:text-[11px] tracking-wider sm:tracking-widest uppercase text-ink-muted group-hover:text-ink transition-colors whitespace-nowrap">
               Twitter / X
             </span>
           </a>
@@ -221,13 +228,13 @@ function SocialLinks({ settings }: { settings: any }) {
           {/* Email */}
           <a
             href={settings?.social_email ? `mailto:${settings.social_email}` : "#"}
-            className="flex flex-col items-center justify-center p-8 border border-border bg-paper hover:bg-paper-card hover:-translate-y-1 hover:shadow-xl hover:shadow-ink/5 transition-all duration-500 group"
+            className="flex flex-col items-center justify-center p-4 sm:p-8 border border-border bg-paper hover:bg-paper-card hover:-translate-y-1 hover:shadow-xl hover:shadow-ink/5 transition-all duration-500 group"
           >
-            <Mail size={24} className="text-ink-muted group-hover:text-indigo transition-colors mb-4" />
-            <span className="font-ui text-[11px] tracking-widest uppercase text-ink-muted group-hover:text-ink transition-colors">
+            <Mail size={24} className="text-ink-muted group-hover:text-indigo transition-colors mb-3 sm:mb-4" />
+            <span className="font-ui text-[10px] sm:text-[11px] tracking-wider sm:tracking-widest uppercase text-ink-muted group-hover:text-ink transition-colors whitespace-nowrap">
               Email
             </span>
-            <span className="font-body text-[12px] text-ink-soft mt-1 text-center">
+            <span className="font-body text-[11px] sm:text-[12px] text-ink-soft mt-1 text-center whitespace-nowrap">
               Say Hello
             </span>
           </a>
