@@ -67,9 +67,9 @@ export default function Newsletter({ heading, body }: NewsletterProps) {
           </button>
         </form>
 
-        <p className="mt-3 text-[11.5px] text-indigo-muted font-body">
+        <p className="mt-4 text-[12px] text-indigo-light font-body">
           By subscribing, you agree to receive monthly updates. Unsubscribe anytime. Read our{" "}
-          <Link href="/privacy" className="text-paper underline hover:text-marigold transition-colors">
+          <Link href="/privacy" className="text-paper underline font-medium hover:text-marigold transition-colors">
             Privacy Policy
           </Link>
           .
