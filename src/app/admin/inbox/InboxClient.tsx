@@ -10,28 +10,44 @@ export default function InboxClient({ messages, subscribers }: { messages: any[]
   const [isPending, startTransition] = useTransition();
 
   const handleMarkRead = (id: string) => {
-    startTransition(() => {
-      markContactMessageRead(id).catch(e => alert(e.message));
+    startTransition(async () => {
+      try {
+        await markContactMessageRead(id);
+      } catch (e: any) {
+        console.error("Error marking read:", e);
+      }
     });
   };
 
   const handleMarkReplied = (id: string) => {
-    startTransition(() => {
-      markContactMessageReplied(id).catch(e => alert(e.message));
+    startTransition(async () => {
+      try {
+        await markContactMessageReplied(id);
+      } catch (e: any) {
+        console.error("Error marking replied:", e);
+      }
     });
   };
 
   const handleDeleteMessage = (id: string) => {
     if (!confirm("Delete this message?")) return;
-    startTransition(() => {
-      deleteContactMessage(id).catch(e => alert(e.message));
+    startTransition(async () => {
+      try {
+        await deleteContactMessage(id);
+      } catch (e: any) {
+        console.error("Error deleting message:", e);
+      }
     });
   };
 
   const handleDeleteSubscriber = (email: string) => {
     if (!confirm(`Remove ${email} from subscribers?`)) return;
-    startTransition(() => {
-      deleteSubscriber(email).catch(e => alert(e.message));
+    startTransition(async () => {
+      try {
+        await deleteSubscriber(email);
+      } catch (e: any) {
+        console.error("Error deleting subscriber:", e);
+      }
     });
   };
 
@@ -153,7 +169,6 @@ export default function InboxClient({ messages, subscribers }: { messages: any[]
                   <div className="pt-2">
                     <a
                       href={mailtoUrl}
-                      onClick={() => handleMarkReplied(m.id)}
                       className="inline-flex items-center gap-2 bg-indigo text-paper text-[11px] font-ui tracking-widest uppercase px-5 py-2.5 hover:bg-ink transition-colors"
                     >
                       <Reply size={14} /> Reply to {m.name} via Email
