@@ -14,7 +14,7 @@ export const revalidate = 3600; // ISR: revalidate every hour
 
 export const metadata: Metadata = {
   title: {
-    absolute: "Writer Lokam — Original Short Fiction",
+    absolute: "Writer Lokam",
   },
   description: "A reading room of original fiction about love, memory, hope, and longing.",
 };

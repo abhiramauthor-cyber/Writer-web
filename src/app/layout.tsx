@@ -10,12 +10,12 @@ export async function generateMetadata(): Promise<Metadata> {
   return {
     metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || "https://writerlokam.in"),
     title: {
-      default: `${settings?.site_name || "Writer Lokam"} — ${settings?.tagline || "Original Short Fiction"}`,
+      default: settings?.site_name || "Writer Lokam",
       template: `%s · ${settings?.site_name || "Writer Lokam"}`,
     },
     description: settings?.meta_description || "A reading room of original fiction about love, memory, hope, and longing.",
     openGraph: {
-      title: `${settings?.site_name || "Writer Lokam"} — ${settings?.tagline || "Original Short Fiction"}`,
+      title: settings?.site_name || "Writer Lokam",
       description: settings?.meta_description || "A reading room of original fiction about love, memory, hope, and longing.",
       url: "/",
       siteName: settings?.site_name || "Writer Lokam",
