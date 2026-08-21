@@ -9,7 +9,7 @@ interface NavCta {
 
 interface NavProps {
   /** Which page is active — drives the highlighted nav link */
-  activePage?: "home" | "stories" | "book" | "about";
+  activePage?: "home" | "stories" | "book" | "about" | "privacy" | "terms" | string;
   /** Per-page CTA button in the header */
   cta?: NavCta;
   /** "reading" renders the compact story-reading nav */

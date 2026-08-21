@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { Send } from "lucide-react";
+import Link from "next/link";
 import IkatDivider from "@/components/IkatDivider";
 import { subscribeToNewsletter } from "@/app/actions";
 
@@ -65,6 +66,14 @@ export default function Newsletter({ heading, body }: NewsletterProps) {
             )}
           </button>
         </form>
+
+        <p className="mt-3 text-[11.5px] text-indigo-muted font-body">
+          By subscribing, you agree to receive monthly updates. Unsubscribe anytime. Read our{" "}
+          <Link href="/privacy" className="text-paper underline hover:text-marigold transition-colors">
+            Privacy Policy
+          </Link>
+          .
+        </p>
 
         {message && (
           <div className={`mt-6 text-sm font-body ${message.type === 'success' ? 'text-indigo' : 'text-rust'}`}>

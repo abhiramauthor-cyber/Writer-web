@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { Send } from "lucide-react";
+import Link from "next/link";
 import { submitContactMessage } from "@/app/actions";
 
 export default function ContactForm() {
@@ -97,15 +98,28 @@ export default function ContactForm() {
               {errorMsg}
             </div>
           )}
-          <button
-            type="submit"
-            disabled={isPending}
-            className="inline-flex items-center gap-2 bg-ink text-paper text-[11px] tracking-[0.18em] uppercase px-7 py-4 hover:bg-indigo transition-colors font-ui disabled:opacity-50"
-          >
-            {isPending ? "Sending..." : (
-              <><Send size={14} /> Send message</>
-            )}
-          </button>
+          <div className="flex flex-col sm:flex-row sm:items-center gap-4">
+            <button
+              type="submit"
+              disabled={isPending}
+              className="inline-flex items-center gap-2 bg-ink text-paper text-[11px] tracking-[0.18em] uppercase px-7 py-4 hover:bg-indigo transition-colors font-ui disabled:opacity-50 shrink-0"
+            >
+              {isPending ? "Sending..." : (
+                <><Send size={14} /> Send message</>
+              )}
+            </button>
+            <p className="text-[12px] text-ink-muted font-body">
+              By submitting this form, you agree to our{" "}
+              <Link href="/privacy" className="text-indigo underline hover:text-ink">
+                Privacy Policy
+              </Link>{" "}
+              and{" "}
+              <Link href="/terms" className="text-indigo underline hover:text-ink">
+                Terms of Service
+              </Link>
+              .
+            </p>
+          </div>
         </form>
       )}
     </section>
