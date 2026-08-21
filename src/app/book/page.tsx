@@ -38,7 +38,7 @@ export default async function BookPage() {
 function BookHero({ hero, details }: { hero: any, details: any }) {
   const eyebrow = hero?.eyebrow || "The Debut Novel";
   const heading = hero?.heading || details?.title || "Two States, One Heart";
-  const subtitle = hero?.subheading || details?.tagline || "Abhi · A Novel";
+  const subtitle = hero?.subheading || details?.tagline || "Abhiram R · A Novel";
   const body = hero?.body || details?.synopsis || "Two families, two languages, two ways of loving — and the couple caught in between, trying to weave something that honors both.";
   const buyLink = hero?.cta_primary_href || "#buy";
   const sampleLink = hero?.cta_secondary_href || "#sample";
@@ -133,8 +133,8 @@ function BookHero({ hero, details }: { hero: any, details: any }) {
 }
 
 function AboutAuthor({ author }: { author: any }) {
-  const name = author?.name || "Abhi";
-  const bio = author?.bio_paragraphs || ["Abhi writes in the space between two languages and two ways of belonging..."];
+  const name = author?.name || "Abhiram R";
+  const bio = author?.bio_paragraphs || ["Abhiram R writes in the space between two languages and two ways of belonging..."];
   
   return (
     <section className="bg-paper-card border-y border-border">

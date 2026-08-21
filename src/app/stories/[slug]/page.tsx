@@ -52,7 +52,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
       description: storyData.frontmatter.excerpt,
       type: "article",
       publishedTime: new Date(Date.now()).toISOString(),
-      authors: ["Abhi"],
+      authors: ["Abhiram R"],
     }
   };
 }
@@ -137,7 +137,7 @@ export default async function StoryPage({ params }: { params: Promise<{ slug: st
     <>
       <ReadingProgress />
       <Nav variant="reading" />
-      <StoryHeader story={story} />
+      <StoryHeader story={story} authorName={authorProfile?.name || "Abhiram R"} />
       
       <article className="max-w-2xl mx-auto px-6 md:px-10 pb-14">
         <div className="prose prose-lg max-w-none prose-p:font-body prose-p:text-[18px] prose-p:leading-[1.85] prose-p:text-ink prose-a:text-indigo hover:prose-a:text-ink transition-colors">
@@ -156,7 +156,7 @@ export default async function StoryPage({ params }: { params: Promise<{ slug: st
         </div>
       </article>
 
-      <AuthorNote avatarUrl={authorProfile?.avatar_url} name={authorProfile?.name} />
+      <AuthorNote avatarUrl={authorProfile?.avatar_url} name={authorProfile?.name || "Abhiram R"} />
       {/* Related Stories */}
       <div className="max-w-4xl mx-auto mt-16 md:mt-24 mb-16 md:mb-24 px-6 md:px-0">
         <RelatedStories currentSlug={slug} allStories={await getAllStoriesCached()} />
@@ -167,7 +167,7 @@ export default async function StoryPage({ params }: { params: Promise<{ slug: st
   );
 }
 
-function StoryHeader({ story }: { story: StoryData }) {
+function StoryHeader({ story, authorName }: { story: StoryData, authorName: string }) {
   const textHex = threadTextColorMap[story.thread];
   const borderHex = threadColorMap[story.thread];
 
@@ -191,7 +191,7 @@ function StoryHeader({ story }: { story: StoryData }) {
         {story.excerpt}
       </p>
       <div className="flex items-center gap-4 text-[12px] text-ink-muted font-ui">
-        <span>By Abhi</span>
+        <span>By {authorName}</span>
         <span aria-hidden="true">&middot;</span>
         <span>{story.readTime} read</span>
       </div>
@@ -202,7 +202,7 @@ function StoryHeader({ story }: { story: StoryData }) {
   );
 }
 
-function AuthorNote({ avatarUrl, name = "Abhi" }: { avatarUrl?: string | null; name?: string }) {
+function AuthorNote({ avatarUrl, name = "Abhiram R" }: { avatarUrl?: string | null; name?: string }) {
   return (
     <section className="bg-paper-card border-y border-border">
       <div className="max-w-2xl mx-auto px-6 md:px-10 py-12 flex items-center gap-5">

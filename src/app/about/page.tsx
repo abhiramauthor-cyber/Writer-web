@@ -12,7 +12,7 @@ export const revalidate = 3600; // ISR: revalidate every hour
 
 export const metadata: Metadata = {
   title: "About",
-  description: "Learn more about Abhi and the journey behind Writer Lokam.",
+  description: "Learn more about Abhiram R and the journey behind Writer Lokam.",
 };
 
 export default async function AboutPage() {

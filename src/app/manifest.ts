@@ -4,7 +4,7 @@ export default function manifest(): MetadataRoute.Manifest {
   return {
     name: 'Writer Lokam',
     short_name: 'Writer Lokam',
-    description: 'A digital reading room by author Abhiram',
+    description: 'A digital reading room by author Abhiram R',
     start_url: '/',
     display: 'standalone',
     background_color: '#F4F1ED', // paper color

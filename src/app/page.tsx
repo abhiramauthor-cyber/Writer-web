@@ -146,7 +146,7 @@ function Stories({ stories }: { stories: StoryData[] }) {
 /* ─── Book Showcase ─── */
 function BookShowcase({ details }: { details: any }) {
   const title = details?.title || "Two States, One Heart";
-  const tagline = details?.tagline || "Abhi · A Novel";
+  const tagline = details?.tagline || "Abhiram R · A Novel";
   const synopsis = details?.synopsis || "Two families, two languages, two ways of loving — and the couple caught in between, trying to weave something that honors both. A story about the quiet negotiations that hold a family together.";
   const imageUrl = details?.cover_image_url;
 
