@@ -245,6 +245,14 @@ export async function markContactMessageRead(id: string) {
   revalidatePath("/admin/inbox");
 }
 
+export async function markContactMessageReplied(id: string) {
+  await requireAdmin();
+  const supabase = await createClient();
+  const { error } = await supabase.from("contact_messages").update({ status: 'replied' }).eq("id", id);
+  if (error) throw new Error(error.message);
+  revalidatePath("/admin/inbox");
+}
+
 export async function deleteContactMessage(id: string) {
   await requireAdmin();
   const supabase = await createClient();
